@@ -22,6 +22,10 @@ description = "教育、实习、项目与技能"
 - 计算机视觉：CIFAR-10 分类实验（ViT/VGG/ResNet 改进）
 - 后端工程：Flask + Amap + LangChain 路线规划与行程生成系统
 
+## 项目时间线
+
+{{< timeline >}}
+
 ## 技术栈
 
 - 语言：Python, C/C++, Matlab, SQL, Haskell

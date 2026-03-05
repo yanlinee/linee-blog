@@ -1,0 +1,22 @@
+{{ $timeline := .Site.Data.timeline }}
+{{ $lang := .Site.Language.Lang }}
+
+<div class="timeline-container">
+    <div class="timeline-line"></div>
+    <div class="timeline-items">
+        {{ range $timeline }}
+        <div class="timeline-item">
+            <div class="timeline-dot {{ .status }}"></div>
+            <div class="timeline-content">
+                <div class="timeline-date">{{ .date }}</div>
+                <h4 class="timeline-title">
+                    {{ if eq $lang "zh-cn" }}{{ .title.zh }}{{ else }}{{ .title.en }}{{ end }}
+                </h4>
+                <p class="timeline-description">
+                    {{ if eq $lang "zh-cn" }}{{ .description.zh }}{{ else }}{{ .description.en }}{{ end }}
+                </p>
+            </div>
+        </div>
+        {{ end }}
+    </div>
+</div>

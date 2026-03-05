@@ -15,7 +15,6 @@ lightMode  = "浅色"
     tableOfContents = "目录"
     relatedContent  = "相关文章"
     lastUpdatedOn   = "最后更新于"
-    readingTime     = "阅读 {{ .Count }} 分钟"
     summaryPlaceholder = "摘要待补充"
 
     [article.alert]

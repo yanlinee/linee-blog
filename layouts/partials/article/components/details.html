@@ -29,12 +29,25 @@
         {{ end }}
     </div>
 
-    {{ $showReadingTime := $Page.Params.readingTime | default ($Page.Site.Params.article.readingTime) }}
     {{ $showDate := not $Page.Date.IsZero }}
-    {{ $showLastmod := $showDate }}
-    {{ $lastmodDate := cond (not $Page.Lastmod.IsZero) $Page.Lastmod $Page.Date }}
-    {{ $showFooter := or $showDate $showReadingTime $showLastmod }}
-    {{ if $showFooter }}
+    {{/* 获取最后修改时间：优先使用 Git 提交时间，其次使用 frontmatter 的 lastmod */}}
+    {{- $gitLastmod := "" -}}
+    {{- if $Page.GitInfo -}}
+        {{- $gitLastmod = $Page.GitInfo.AuthorDate -}}
+    {{- end -}}
+    {{- $fmLastmod := "" -}}
+    {{- if not $Page.Lastmod.IsZero -}}
+        {{- $fmLastmod = $Page.Lastmod -}}
+    {{- end -}}
+    {{/* 确定使用哪个时间作为 lastmod */}}
+    {{- $lastmod := $Page.Date -}}
+    {{- if $gitLastmod -}}
+        {{- $lastmod = $gitLastmod -}}
+    {{- else if $fmLastmod -}}
+        {{- $lastmod = $fmLastmod -}}
+    {{- end -}}
+    {{ $showLastmod := ne ($lastmod.Format "2006-01-02") ($Page.Date.Format "2006-01-02") }}
+    {{ if or $showDate $showLastmod }}
     <footer class="article-time {{ if not $IsList }}article-time--single{{ end }}">
         {{ if $showDate }}
         <div class="article-meta-item">
@@ -48,19 +61,10 @@
         {{ if $showLastmod }}
         <div class="article-meta-item article-meta-item--lastmod">
             {{ partial "helper/icon" "clock" }}
-            <time class="article-time--lastmod" datetime='{{ $lastmodDate.Format "2006-01-02T15:04:05Z07:00" }}'>
-                {{ if eq $Page.Language.Lang "zh-cn" }}更新{{ else }}Updated{{ end }}: {{- $lastmodDate | time.Format
+            <time class="article-time--lastmod" datetime='{{ $lastmod.Format "2006-01-02T15:04:05Z07:00" }}'>
+                {{ if eq $Page.Language.Lang "zh-cn" }}更新{{ else }}Updated{{ end }}: {{- $lastmod | time.Format
                 $Page.Site.Params.dateFormat.published -}}
             </time>
-        </div>
-        {{ end }}
-
-        {{ if $showReadingTime }}
-        <div class="article-meta-item">
-            {{ partial "helper/icon" "clock" }}
-            <span class="article-time--reading">
-                {{ T "article.readingTime" $Page.ReadingTime }}
-            </span>
         </div>
         {{ end }}
     </footer>

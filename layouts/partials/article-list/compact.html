@@ -1,0 +1,36 @@
+<article class="{{ if .Params.pinned }}is-pinned{{ end }}">
+    <a href="{{ .RelPermalink }}">
+        <div class="article-details">
+            <h2 class="article-title">
+                {{ if .Params.pinned }}
+                <span class="pin-badge" title="{{ if eq .Site.Language.Lang "zh-cn" }}置顶{{ else }}Pinned{{ end }}">📌</span>
+                {{ end }}
+                {{- .Title -}}
+            </h2>
+            <footer class="article-time">
+                <time datetime='{{ .Date.Format "2006-01-02T15:04:05Z07:00" }}'>
+                    {{- .Date | time.Format (or .Site.Params.dateFormat.published "Jan 02, 2006") -}}
+                </time>
+            </footer>
+        </div>
+
+        {{- $image := partial "helper/image" (dict "Image" .Params.image "Resources" .Resources) -}}
+        {{ if $image }}
+        <div class="article-image">
+            {{ partial "helper/thumbnail-image" (dict 
+                "Resource" $image.Resource
+                "Width" 60
+                "Height" 60
+                "Resize" .Site.Params.ImageProcessing.Thumbnail.Enabled
+                "Attributes" (dict
+                    "src" $image.Permalink
+                    "alt" .Title
+                    "loading" "lazy"
+                    "width" $image.Width
+                    "height" $image.Height
+                )
+            ) }}
+        </div>
+        {{ end }}
+    </a>
+</article>

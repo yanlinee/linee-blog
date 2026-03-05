@@ -3,6 +3,9 @@ languageCode = 'zh-cn'
 theme = 'stack'
 title = '王棪 / Yan Wang'
 
+# 启用 Git 信息获取最后修改时间
+enableGitInfo = true
+
 defaultContentLanguage = 'zh-cn'
 
 [languages]
@@ -79,6 +82,9 @@ defaultContentLanguage = 'zh-cn'
 			weight = 40
 
 [params]
+	[params.dateFormat]
+		published = "2006-01-02"
+	
 	[params.colorScheme]
 		toggle = true  # 启用深色/浅色模式切换
 		default = "light"  # 默认使用浅色模式

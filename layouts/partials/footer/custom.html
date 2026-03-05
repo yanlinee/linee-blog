@@ -76,6 +76,8 @@
 
             const closeTargets = Array.from(document.querySelectorAll('[data-top-nav-close]'));
             const drawerLinks = Array.from(drawer.querySelectorAll('a'));
+            const drawerThemeToggle = drawer.querySelector('.top-nav-drawer-theme-toggle');
+            const globalThemeToggle = document.getElementById('dark-mode-toggle');
 
             const setOpen = (open) => {
                 document.body.classList.toggle('top-nav-drawer-open', open);
@@ -90,6 +92,12 @@
 
             closeTargets.forEach((el) => el.addEventListener('click', () => setOpen(false)));
             drawerLinks.forEach((el) => el.addEventListener('click', () => setOpen(false)));
+
+            if (drawerThemeToggle && globalThemeToggle) {
+                drawerThemeToggle.addEventListener('click', () => {
+                    globalThemeToggle.click();
+                });
+            }
 
             window.addEventListener('keydown', (event) => {
                 if (event.key === 'Escape') {

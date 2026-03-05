@@ -1,0 +1,18 @@
+{{/* 
+    Custom pages helper with pinned support
+    Pinned posts (pinned=true) are sorted first by weight, then by date
+*/}}
+{{ $pages := .Pages }}
+
+{{/* Separate pinned and regular pages */}}
+{{ $pinned := where $pages "Params.pinned" true }}
+{{ $regular := where $pages "Params.pinned" "ne" true }}
+
+{{/* Sort pinned by weight (ascending), then regular by date (descending) */}}
+{{ $pinnedSorted := sort $pinned "Params.weight" "asc" }}
+{{ $regularSorted := sort $regular "Date" "desc" }}
+
+{{/* Combine: pinned first, then regular */}}
+{{ $result := union $pinnedSorted $regularSorted }}
+
+{{ return $result }}

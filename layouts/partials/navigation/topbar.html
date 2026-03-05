@@ -2,15 +2,6 @@
 {{- $isHomeLike := eq .RelPermalink .Site.Home.RelPermalink -}}
 <nav class="top-nav" aria-label="Primary">
     <div class="top-nav-inner">
-        <div class="top-nav-left">
-            {{ if not $isHomeLike }}
-            <a class="top-nav-back" href="{{ .Site.Home.RelPermalink }}">
-                <span class="top-nav-back-icon" aria-hidden="true">&larr;</span>
-                <span>{{ if eq .Site.Language.Lang "zh-cn" }}返回主页{{ else }}Back Home{{ end }}</span>
-            </a>
-            {{ end }}
-        </div>
-
         <button class="top-nav-mobile-trigger" type="button"
             aria-label='{{ if eq .Site.Language.Lang "zh-cn" }}打开导航{{ else }}Open navigation{{ end }}'
             aria-controls="top-nav-drawer" aria-expanded="false">
@@ -73,7 +64,12 @@
     <div class="top-nav-drawer-backdrop" data-top-nav-close></div>
     <aside class="top-nav-drawer" id="top-nav-drawer" aria-hidden="true">
         <div class="top-nav-drawer-header">
-            <strong>{{ if eq .Site.Language.Lang "zh-cn" }}导航{{ else }}Navigation{{ end }}</strong>
+            <div class="top-nav-drawer-meta">
+                <strong>{{ .Site.Title }}</strong>
+                <span>{{ if $isHomeLike }}{{ if eq .Site.Language.Lang "zh-cn" }}当前：主页{{ else }}Current: Home{{ end }}{{
+                    else }}{{ if eq .Site.Language.Lang "zh-cn" }}当前：{{ else }}Current: {{ end }}{{ .Title }}{{ end
+                    }}</span>
+            </div>
             <button class="top-nav-drawer-close" type="button" data-top-nav-close
                 aria-label='{{ if eq .Site.Language.Lang "zh-cn" }}关闭导航{{ else }}Close navigation{{ end }}'>×</button>
         </div>
@@ -86,5 +82,33 @@
             </li>
             {{ end }}
         </ol>
+
+        <div class="top-nav-drawer-controls">
+            {{- $currentLanguageCode := .Language.Lang -}}
+            {{ if hugo.IsMultilingual }}
+            <label class="top-nav-drawer-control" for="top-nav-drawer-language">
+                <span>{{ if eq .Site.Language.Lang "zh-cn" }}语言{{ else }}Language{{ end }}</span>
+                <select id="top-nav-drawer-language" class="top-nav-drawer-language"
+                    onchange="window.location.href = this.selectedOptions[0].value">
+                    {{ range .Site.Home.AllTranslations }}
+                    {{ $target := . }}
+                    {{ range $.AllTranslations }}
+                    {{ if eq .Language.Lang $target.Language.Lang }}
+                    {{ $target = . }}
+                    {{ end }}
+                    {{ end }}
+                    <option value="{{ $target.RelPermalink }}" {{ if eq $target.Language.Lang $currentLanguageCode
+                        }}selected{{ end }}>{{ .Language.LanguageName }}</option>
+                    {{ end }}
+                </select>
+            </label>
+            {{ end }}
+
+            {{ if .Site.Params.colorScheme.toggle }}
+            <button class="top-nav-drawer-control top-nav-drawer-theme-toggle" type="button">
+                {{ if eq .Site.Language.Lang "zh-cn" }}切换浅色 / 深色{{ else }}Toggle Light / Dark{{ end }}
+            </button>
+            {{ end }}
+        </div>
     </aside>
 </nav>

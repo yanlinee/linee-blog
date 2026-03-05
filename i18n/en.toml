@@ -15,7 +15,6 @@ lightMode  = "Light"
     tableOfContents = "Table of Contents"
     relatedContent  = "Related Content"
     lastUpdatedOn   = "Last updated on"
-    readingTime     = "{{ .Count }} min read"
     summaryPlaceholder = "Summary coming soon"
 
     [article.alert]

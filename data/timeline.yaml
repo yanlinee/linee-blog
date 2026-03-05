@@ -1,0 +1,63 @@
+# 项目状态时间线
+- date: "2025-03"
+  title: 
+    zh: "博客重构"
+    en: "Blog Redesign"
+  description:
+    zh: "完成 iOS 风格 redesign，添加 Liquid Glass 效果"
+    en: "Completed iOS-style redesign with Liquid Glass effects"
+  status: "completed"
+  
+- date: "2025-02"
+  title:
+    zh: "编译器项目"
+    en: "Compiler Project"
+  description:
+    zh: "完成 SLR(1) 编译器实现，支持语法分析和中间代码生成"
+    en: "Completed SLR(1) compiler with syntax analysis and intermediate code generation"
+  status: "completed"
+  
+- date: "2025-01"
+  title:
+    zh: "机器学习实验"
+    en: "ML Experiments"
+  description:
+    zh: "完成 CIFAR-10 分类实验，对比 ViT/VGG/ResNet 性能"
+    en: "Completed CIFAR-10 classification experiments comparing ViT/VGG/ResNet"
+  status: "completed"
+  
+- date: "2024-12"
+  title:
+    zh: "金融科技实习"
+    en: "FinTech Internship"
+  description:
+    zh: "于中国建设银行陕西省分行金融科技部实习"
+    en: "Interned at CCB Shaanxi Branch FinTech Department"
+  status: "completed"
+  
+- date: "2024-11"
+  title:
+    zh: "路线规划系统"
+    en: "Route Planning System"
+  description:
+    zh: "开发基于 Flask + Amap + LangChain 的智能路线规划系统"
+    en: "Developed intelligent route planning system using Flask + Amap + LangChain"
+  status: "completed"
+  
+- date: "2024-10"
+  title:
+    zh: "TSP 优化算法"
+    en: "TSP Optimization"
+  description:
+    zh: "实现并对比 ACO/GA/SA 算法在 TSP-225 上的性能"
+    en: "Implemented and compared ACO/GA/SA algorithms on TSP-225"
+  status: "completed"
+
+- date: "2024-09"
+  title:
+    zh: "个人网站上线"
+    en: "Personal Website Launch"
+  description:
+    zh: "基于 Hugo + Stack 主题搭建个人博客"
+    en: "Built personal blog with Hugo + Stack theme"
+  status: "completed"
