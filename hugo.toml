@@ -1,3 +1,4 @@
-baseURL = 'https://example.org/'
-languageCode = 'en-us'
-title = 'My New Hugo Site'
+baseurl = 'https://yanlinee.github.io/linee-blog'
+languageCode = 'zh-cn'
+theme = 'stack'
+title = '王棪 / Yan Wang'
