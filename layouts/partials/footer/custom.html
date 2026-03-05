@@ -68,6 +68,42 @@
         };
         const profile = motionProfiles[motionLevel] || motionProfiles.normal;
 
+        // Mobile left drawer for top navigation
+        (() => {
+            const trigger = document.querySelector('.top-nav-mobile-trigger');
+            const drawer = document.getElementById('top-nav-drawer');
+            if (!trigger || !drawer) return;
+
+            const closeTargets = Array.from(document.querySelectorAll('[data-top-nav-close]'));
+            const drawerLinks = Array.from(drawer.querySelectorAll('a'));
+
+            const setOpen = (open) => {
+                document.body.classList.toggle('top-nav-drawer-open', open);
+                trigger.setAttribute('aria-expanded', open ? 'true' : 'false');
+                drawer.setAttribute('aria-hidden', open ? 'false' : 'true');
+            };
+
+            trigger.addEventListener('click', () => {
+                const open = !document.body.classList.contains('top-nav-drawer-open');
+                setOpen(open);
+            });
+
+            closeTargets.forEach((el) => el.addEventListener('click', () => setOpen(false)));
+            drawerLinks.forEach((el) => el.addEventListener('click', () => setOpen(false)));
+
+            window.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape') {
+                    setOpen(false);
+                }
+            });
+
+            window.addEventListener('resize', () => {
+                if (window.innerWidth > 1023) {
+                    setOpen(false);
+                }
+            }, { passive: true });
+        })();
+
         // Left outline scrollspy: highlight current section and keep it visible
         (() => {
             const outlineNav = document.getElementById('ArticleOutlineNav');

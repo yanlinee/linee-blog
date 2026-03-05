@@ -68,7 +68,7 @@
     --scrollbar-track: transparent;
 
     /* 卡片轻透明层 */
-    --card-surface-bg: color-mix(in srgb, var(--card-background) 80%, transparent);
+    --card-surface-bg: color-mix(in srgb, var(--card-background) 62%, transparent);
     --card-surface-border: color-mix(in srgb, var(--ios-separator) 62%, transparent);
 }
 
@@ -123,7 +123,7 @@
     --scrollbar-thumb: rgba(120, 120, 128, 0.4);
 
     /* 深色下卡片透明度略高一点，避免发灰 */
-    --card-surface-bg: color-mix(in srgb, var(--card-background) 76%, transparent);
+    --card-surface-bg: color-mix(in srgb, var(--card-background) 58%, transparent);
     --card-surface-border: color-mix(in srgb, var(--ios-separator) 66%, transparent);
 }
 
@@ -300,17 +300,17 @@ tt {
 
 /* Liquid Glass 效果变量 */
 :root {
-    --glass-bg-light: rgba(255, 255, 255, 0.1);
-    --glass-bg-dark: rgba(10, 12, 18, 0.34);
-    --glass-border-light: rgba(255, 255, 255, 0.46);
-    --glass-border-dark: rgba(255, 255, 255, 0.2);
+    --glass-bg-light: rgba(255, 255, 255, 0.045);
+    --glass-bg-dark: rgba(10, 12, 18, 0.2);
+    --glass-border-light: rgba(255, 255, 255, 0.5);
+    --glass-border-dark: rgba(255, 255, 255, 0.24);
     --glass-shadow-light: 0 1px 4px rgba(15, 23, 42, 0.05);
     --glass-shadow-dark: 0 1px 6px rgba(0, 0, 0, 0.2);
 }
 
 [data-scheme="dark"] {
-    --glass-bg-light: rgba(14, 16, 22, 0.36);
-    --glass-bg-dark: rgba(8, 10, 14, 0.46);
+    --glass-bg-light: rgba(14, 16, 22, 0.16);
+    --glass-bg-dark: rgba(8, 10, 14, 0.24);
     --glass-border-light: rgba(255, 255, 255, 0.22);
     --glass-border-dark: rgba(255, 255, 255, 0.08);
 }
@@ -324,8 +324,8 @@ tt {
     border-radius: var(--ios-radius-2xl);
     border: 1px solid var(--glass-border-light);
     background: var(--glass-bg-light);
-    backdrop-filter: blur(10px) saturate(115%);
-    -webkit-backdrop-filter: blur(10px) saturate(115%);
+    backdrop-filter: blur(0.8px) saturate(104%);
+    -webkit-backdrop-filter: blur(0.8px) saturate(104%);
     box-shadow: var(--glass-shadow-light);
     transition: background-color 0.24s var(--ease-ios), border-color 0.24s var(--ease-ios), box-shadow 0.24s var(--ease-ios);
     position: relative;
@@ -336,6 +336,16 @@ tt {
         align-items: stretch;
         padding: var(--ios-spacing-sm);
     }
+}
+
+.top-nav-inner::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.02) 42%, transparent 70%);
+    mix-blend-mode: soft-light;
 }
 
 [data-scheme="dark"] .top-nav-inner {
@@ -424,6 +434,149 @@ tt {
 
 .top-nav-menu::-webkit-scrollbar {
     display: none;
+}
+
+.top-nav-mobile-trigger {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: var(--ios-radius-lg);
+    border: 0.5px solid var(--ios-separator);
+    background: var(--ios-tertiary-system-fill);
+    color: var(--ios-label);
+    font-size: 1.15rem;
+    line-height: 1;
+}
+
+.top-nav-drawer-backdrop,
+.top-nav-drawer {
+    display: none;
+}
+
+@media (max-width: 1023px) {
+    .top-nav {
+        position: static;
+        margin-bottom: var(--ios-spacing-md);
+    }
+
+    .top-nav-inner {
+        flex-direction: row;
+        align-items: center;
+        padding: var(--ios-spacing-sm);
+    }
+
+    .top-nav-menu {
+        display: none;
+    }
+
+    .top-nav-mobile-trigger {
+        display: inline-flex;
+        flex-shrink: 0;
+    }
+
+    .top-nav-right {
+        margin-left: auto;
+    }
+
+    .top-nav-right .theme-label {
+        display: none !important;
+    }
+
+    .top-nav-drawer-backdrop,
+    .top-nav-drawer {
+        display: block;
+    }
+
+    .top-nav-drawer-backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: 120;
+        background: rgba(0, 0, 0, 0.28);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity var(--duration-fast) var(--ease-ios);
+    }
+
+    .top-nav-drawer {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        width: 84vw;
+        max-width: 320px;
+        z-index: 130;
+        padding: var(--ios-spacing-md);
+        transform: translateX(-106%);
+        transition: transform var(--duration-normal) var(--ease-spring-subtle);
+        border-right: 1px solid var(--glass-border-light);
+        background: var(--glass-bg-light);
+        backdrop-filter: blur(8px) saturate(112%);
+        -webkit-backdrop-filter: blur(8px) saturate(112%);
+        box-shadow: 10px 0 24px rgba(15, 23, 42, 0.12);
+    }
+
+    [data-scheme="dark"] .top-nav-drawer {
+        background: var(--glass-bg-dark);
+        border-color: var(--glass-border-dark);
+        box-shadow: 10px 0 28px rgba(0, 0, 0, 0.32);
+    }
+
+    body.top-nav-drawer-open {
+        overflow: hidden;
+    }
+
+    body.top-nav-drawer-open .top-nav-drawer-backdrop {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    body.top-nav-drawer-open .top-nav-drawer {
+        transform: translateX(0);
+    }
+
+    .top-nav-drawer-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: var(--ios-spacing-md);
+    }
+
+    .top-nav-drawer-close {
+        width: 32px;
+        height: 32px;
+        border-radius: var(--ios-radius-md);
+        border: 0.5px solid var(--ios-separator);
+        background: var(--ios-tertiary-system-fill);
+        color: var(--ios-label);
+        font-size: 1.25rem;
+        line-height: 1;
+    }
+
+    .top-nav-drawer-menu {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        gap: var(--ios-spacing-xs);
+    }
+
+    .top-nav-drawer-link {
+        display: block;
+        padding: var(--ios-spacing-sm) var(--ios-spacing-md);
+        border-radius: var(--ios-radius-lg);
+        color: var(--ios-secondary-label);
+        font-size: var(--font-subhead);
+        font-weight: 500;
+    }
+
+    .top-nav-drawer-link.is-active {
+        color: var(--accent-color);
+        background: var(--ios-secondary-system-fill);
+        font-weight: 600;
+    }
 }
 
 .top-nav-link {
@@ -808,10 +961,21 @@ tt {
     --home-mini-gap: var(--ios-spacing-md);
     border: 1px solid var(--glass-border-light);
     background: var(--glass-bg-light) !important;
-    backdrop-filter: blur(10px) saturate(115%);
-    -webkit-backdrop-filter: blur(10px) saturate(115%);
+    backdrop-filter: blur(0.8px) saturate(104%);
+    -webkit-backdrop-filter: blur(0.8px) saturate(104%);
     box-shadow: var(--glass-shadow-light);
     transition: background-color 0.24s var(--ease-ios), border-color 0.24s var(--ease-ios), box-shadow 0.24s var(--ease-ios);
+    position: relative;
+    overflow: hidden;
+}
+
+.home-page .portal-home-shell::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    border-radius: inherit;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.02) 46%, transparent 72%);
 }
 
 [data-scheme="dark"] .home-page .portal-home-shell {
@@ -1006,10 +1170,27 @@ tt {
     padding: var(--ios-spacing-sm);
     border-radius: var(--ios-radius-2xl);
     border: 0.5px solid var(--card-surface-border);
-    background: color-mix(in srgb, var(--ios-secondary-system-background) 64%, transparent);
-    backdrop-filter: blur(12px) saturate(114%);
-    -webkit-backdrop-filter: blur(12px) saturate(114%);
+    background: var(--glass-bg-light);
+    border-color: var(--glass-border-light);
+    backdrop-filter: blur(0.8px) saturate(104%);
+    -webkit-backdrop-filter: blur(0.8px) saturate(104%);
     box-shadow: var(--shadow-card-base);
+    position: relative;
+    overflow: hidden;
+}
+
+.right-sidebar .right-sidebar-shell::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.01) 46%, transparent 72%);
+}
+
+[data-scheme="dark"] .right-sidebar .right-sidebar-shell {
+    background: var(--glass-bg-dark);
+    border-color: var(--glass-border-dark);
 }
 
 .right-sidebar .right-sidebar-item {
@@ -1364,8 +1545,8 @@ footer {
 .news-group {
     background: var(--card-surface-bg) !important;
     border-color: var(--card-surface-border);
-    backdrop-filter: blur(6px) saturate(108%);
-    -webkit-backdrop-filter: blur(6px) saturate(108%);
+    backdrop-filter: blur(0.35px) saturate(101%);
+    -webkit-backdrop-filter: blur(0.35px) saturate(101%);
 }
 
 .ios-float-card.is-floating {

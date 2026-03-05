@@ -11,6 +11,12 @@
             {{ end }}
         </div>
 
+        <button class="top-nav-mobile-trigger" type="button"
+            aria-label='{{ if eq .Site.Language.Lang "zh-cn" }}打开导航{{ else }}Open navigation{{ end }}'
+            aria-controls="top-nav-drawer" aria-expanded="false">
+            <span aria-hidden="true">☰</span>
+        </button>
+
         <ol class="top-nav-menu">
             {{ range .Site.Menus.main }}
             {{ $active := or (eq $currentPage.RelPermalink .URL) (or ($currentPage.HasMenuCurrent "main" .)
@@ -63,4 +69,22 @@
             {{ end }}
         </div>
     </div>
+
+    <div class="top-nav-drawer-backdrop" data-top-nav-close></div>
+    <aside class="top-nav-drawer" id="top-nav-drawer" aria-hidden="true">
+        <div class="top-nav-drawer-header">
+            <strong>{{ if eq .Site.Language.Lang "zh-cn" }}导航{{ else }}Navigation{{ end }}</strong>
+            <button class="top-nav-drawer-close" type="button" data-top-nav-close
+                aria-label='{{ if eq .Site.Language.Lang "zh-cn" }}关闭导航{{ else }}Close navigation{{ end }}'>×</button>
+        </div>
+        <ol class="top-nav-drawer-menu">
+            {{ range .Site.Menus.main }}
+            {{ $active := or (eq $currentPage.RelPermalink .URL) (or ($currentPage.HasMenuCurrent "main" .)
+            ($currentPage.IsMenuCurrent "main" .)) }}
+            <li>
+                <a class="top-nav-drawer-link {{ if $active }}is-active{{ end }}" href="{{ .URL }}">{{ .Name }}</a>
+            </li>
+            {{ end }}
+        </ol>
+    </aside>
 </nav>
