@@ -1,0 +1,1645 @@
+/* ============================================
+   iOS Design System for Personal Blog
+   ============================================ */
+
+/* JetBrains Mono for code */
+@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap");
+
+/* ============================================
+   1. iOS Color System (Semantic Colors)
+   ============================================ */
+:root {
+    /* iOS 基础背景色 */
+    --ios-system-background: #ffffff;
+    --ios-secondary-system-background: #F2F2F7;
+    --ios-tertiary-system-background: #ffffff;
+    
+    /* iOS 标签色 */
+    --ios-label: #000000;
+    --ios-secondary-label: rgba(60, 60, 67, 0.6);
+    --ios-tertiary-label: rgba(60, 60, 67, 0.3);
+    --ios-quaternary-label: rgba(60, 60, 67, 0.18);
+    
+    /* iOS 填充色 */
+    --ios-system-fill: rgba(120, 120, 128, 0.2);
+    --ios-secondary-system-fill: rgba(120, 120, 128, 0.16);
+    --ios-tertiary-system-fill: rgba(118, 118, 128, 0.12);
+    
+    /* iOS 分隔线 */
+    --ios-separator: rgba(60, 60, 67, 0.29);
+    --ios-opaque-separator: #C6C6C8;
+    
+    /* iOS 系统色 */
+    --ios-blue: #007AFF;
+    --ios-green: #34C759;
+    --ios-indigo: #5856D6;
+    --ios-orange: #FF9500;
+    --ios-pink: #FF2D55;
+    --ios-purple: #AF52DE;
+    --ios-red: #FF3B30;
+    --ios-teal: #5AC8FA;
+    --ios-yellow: #FFCC00;
+    --ios-gray: #8E8E93;
+    
+    /* 应用到主题变量 */
+    --body-background: var(--ios-secondary-system-background);
+    --card-background: var(--ios-system-background);
+    --card-background-selected: var(--ios-secondary-system-background);
+    
+    --card-text-color-main: var(--ios-label);
+    --card-text-color-secondary: var(--ios-secondary-label);
+    --card-text-color-tertiary: var(--ios-tertiary-label);
+    --card-separator-color: var(--ios-separator);
+    
+    --accent-color: var(--ios-blue);
+    --accent-color-darker: #0056CC;
+    --accent-color-text: #ffffff;
+    --body-text-color: var(--ios-secondary-label);
+    
+    /* 覆盖原主题变量 */
+    --blockquote-background-color: var(--ios-secondary-system-background);
+    --pre-background-color: #1C1C1E;
+    --pre-text-color: #f8f8f2;
+    --code-background-color: var(--ios-tertiary-system-fill);
+    --code-text-color: var(--ios-label);
+    
+    /* 滚动条 */
+    --scrollbar-thumb: rgba(120, 120, 128, 0.3);
+    --scrollbar-track: transparent;
+}
+
+/* 深色模式 iOS 配色 */
+[data-scheme="dark"] {
+    --ios-system-background: #000000;
+    --ios-secondary-system-background: #1C1C1E;
+    --ios-tertiary-system-background: #2C2C2E;
+    
+    --ios-label: #ffffff;
+    --ios-secondary-label: rgba(235, 235, 245, 0.6);
+    --ios-tertiary-label: rgba(235, 235, 245, 0.3);
+    --ios-quaternary-label: rgba(235, 235, 245, 0.16);
+    
+    --ios-system-fill: rgba(120, 120, 128, 0.36);
+    --ios-secondary-system-fill: rgba(120, 120, 128, 0.32);
+    --ios-tertiary-system-fill: rgba(118, 118, 128, 0.24);
+    
+    --ios-separator: rgba(84, 84, 88, 0.6);
+    --ios-opaque-separator: #38383A;
+    
+    /* iOS 深色模式系统色 */
+    --ios-blue: #0A84FF;
+    --ios-green: #30D158;
+    --ios-indigo: #5E5CE6;
+    --ios-orange: #FF9F0A;
+    --ios-pink: #FF375F;
+    --ios-purple: #BF5AF2;
+    --ios-red: #FF453A;
+    --ios-teal: #64D2FF;
+    --ios-yellow: #FFD60A;
+    --ios-gray: #8E8E93;
+    
+    --body-background: var(--ios-system-background);
+    --card-background: var(--ios-secondary-system-background);
+    --card-background-selected: var(--ios-tertiary-system-background);
+    
+    --card-text-color-main: var(--ios-label);
+    --card-text-color-secondary: var(--ios-secondary-label);
+    --card-text-color-tertiary: var(--ios-tertiary-label);
+    --card-separator-color: var(--ios-separator);
+    
+    --accent-color: var(--ios-blue);
+    --accent-color-darker: #007AFF;
+    --body-text-color: var(--ios-secondary-label);
+    
+    --blockquote-background-color: var(--ios-tertiary-system-background);
+    --code-background-color: var(--ios-tertiary-system-background);
+    --code-text-color: var(--ios-label);
+    --pre-background-color: #1C1C1E;
+    
+    --scrollbar-thumb: rgba(120, 120, 128, 0.4);
+}
+
+/* ============================================
+   2. iOS Typography System
+   ============================================ */
+:root {
+    /* iOS 字体栈 - 优先使用系统字体 */
+    --ios-font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    
+    /* 代码字体强制使用 JetBrains Mono */
+    --code-font-family: "JetBrains Mono", Menlo, Monaco, Consolas, "Courier New", monospace;
+    
+    /* iOS 字号系统（Dynamic Type） */
+    --font-large-title: 2.125rem;      /* 34px - 大标题 */
+    --font-title-1: 1.75rem;           /* 28px - 标题1 */
+    --font-title-2: 1.375rem;          /* 22px - 标题2 */
+    --font-title-3: 1.25rem;           /* 20px - 标题3 */
+    --font-headline: 1.0625rem;        /* 17px - 强调 */
+    --font-body: 1.0625rem;            /* 17px - 正文 */
+    --font-callout: 1rem;              /* 16px - 说明 */
+    --font-subhead: 0.9375rem;         /* 15px - 副标题 */
+    --font-footnote: 0.8125rem;        /* 13px - 脚注 */
+    --font-caption-1: 0.75rem;         /* 12px - 标注1 */
+    --font-caption-2: 0.6875rem;       /* 11px - 标注2 */
+    
+    /* 应用到文章 */
+    --article-font-family: var(--ios-font-family);
+    --article-font-size: var(--font-body);
+    --article-line-height: 1.7;
+    
+    /* HTML 基础字号 - 确保 rem 计算正确 */
+    font-size: 16px;
+    
+    /* 基础字体 */
+    --base-font-family: var(--ios-font-family);
+    --sys-font-family: var(--ios-font-family);
+}
+
+/* 代码块强制使用 JetBrains Mono */
+code, pre, kbd, samp, tt {
+    font-family: var(--code-font-family) !important;
+}
+
+/* ============================================
+   3. iOS Corner Radius System
+   ============================================ */
+:root {
+    /* iOS 圆角层级 */
+    --ios-radius-xs: 6px;      /* 小元素 */
+    --ios-radius-sm: 8px;      /* 按钮、标签 */
+    --ios-radius-md: 10px;     /* 输入框 */
+    --ios-radius-lg: 12px;     /* 小组件 */
+    --ios-radius-xl: 16px;     /* 标准卡片 */
+    --ios-radius-2xl: 20px;    /* 大卡片 */
+    --ios-radius-3xl: 24px;    /* 特大卡片 */
+    --ios-radius-full: 9999px; /* 胶囊、圆形 */
+    
+    /* 应用到主题 */
+    --card-border-radius: var(--ios-radius-xl);
+    --tag-border-radius: var(--ios-radius-sm);
+}
+
+/* ============================================
+   4. iOS Shadow System
+   ============================================ */
+:root {
+    /* iOS 风格更柔和的阴影 */
+    --shadow-ios-1: 0 1px 2px rgba(0, 0, 0, 0.03), 0 1px 3px rgba(0, 0, 0, 0.05);
+    --shadow-ios-2: 0 3px 8px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.06);
+    --shadow-ios-3: 0 6px 16px rgba(0, 0, 0, 0.06), 0 2px 6px rgba(0, 0, 0, 0.04);
+    --shadow-ios-4: 0 12px 32px rgba(0, 0, 0, 0.08), 0 4px 12px rgba(0, 0, 0, 0.05);
+    
+    /* 覆盖原阴影 */
+    --shadow-l1: var(--shadow-ios-1);
+    --shadow-l2: var(--shadow-ios-2);
+    --shadow-l3: var(--shadow-ios-3);
+    --shadow-l4: var(--shadow-ios-4);
+}
+
+/* ============================================
+   5. iOS Animation System (Spring + Ease)
+   ============================================ */
+:root {
+    /* iOS 弹簧曲线 */
+    --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+    --ease-spring-subtle: cubic-bezier(0.25, 1, 0.5, 1);
+    --ease-ios: cubic-bezier(0.4, 0.0, 0.2, 1);
+    --ease-ios-decelerate: cubic-bezier(0.0, 0.0, 0.2, 1);
+    --ease-ios-accelerate: cubic-bezier(0.4, 0.0, 1, 1);
+    
+    /* 时长 */
+    --duration-instant: 100ms;
+    --duration-fast: 200ms;
+    --duration-normal: 300ms;
+    --duration-slow: 500ms;
+}
+
+/* ============================================
+   6. iOS Blur & Materials
+   ============================================ */
+:root {
+    --ios-blur-sm: 8px;
+    --ios-blur-md: 14px;
+    --ios-blur-lg: 20px;
+    --ios-blur-xl: 30px;
+    
+    /* 材质背景 */
+    --material-thin: rgba(255, 255, 255, 0.7);
+    --material-regular: rgba(255, 255, 255, 0.5);
+    --material-thick: rgba(255, 255, 255, 0.3);
+}
+
+[data-scheme="dark"] {
+    --material-thin: rgba(30, 30, 30, 0.7);
+    --material-regular: rgba(30, 30, 30, 0.5);
+    --material-thick: rgba(30, 30, 30, 0.3);
+}
+
+/* ============================================
+   7. Layout & Spacing (iOS 风格)
+   ============================================ */
+:root {
+    --ios-spacing-xs: 4px;
+    --ios-spacing-sm: 8px;
+    --ios-spacing-md: 12px;
+    --ios-spacing-lg: 16px;
+    --ios-spacing-xl: 20px;
+    --ios-spacing-2xl: 24px;
+    --ios-spacing-3xl: 32px;
+    
+    --section-separation: var(--ios-spacing-xl);
+    --card-padding: var(--ios-spacing-lg);
+    --container-padding: 20px;
+}
+
+/* ============================================
+   8. Top Navigation (iOS 风格)
+   ============================================ */
+.top-nav {
+    position: sticky;
+    top: 12px;
+    z-index: 100;
+    margin: 0 0 var(--ios-spacing-lg);
+}
+
+/* Liquid Glass 效果变量 */
+:root {
+    --glass-bg-light: rgba(255, 255, 255, 0.45);
+    --glass-bg-dark: rgba(30, 30, 30, 0.65);
+    --glass-border-light: rgba(255, 255, 255, 0.4);
+    --glass-border-dark: rgba(255, 255, 255, 0.1);
+    --glass-sheen: linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.2) 0%,
+        rgba(255, 255, 255, 0) 50%,
+        rgba(255, 255, 255, 0.05) 100%
+    );
+}
+
+[data-scheme="dark"] {
+    --glass-bg-light: rgba(30, 30, 30, 0.65);
+    --glass-bg-dark: rgba(0, 0, 0, 0.75);
+    --glass-border-light: rgba(255, 255, 255, 0.1);
+    --glass-border-dark: rgba(255, 255, 255, 0.05);
+    --glass-sheen: linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.15) 0%,
+        rgba(255, 255, 255, 0) 50%,
+        rgba(255, 255, 255, 0.03) 100%
+    );
+}
+
+.top-nav-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--ios-spacing-md);
+    padding: var(--ios-spacing-sm) var(--ios-spacing-md);
+    border-radius: var(--ios-radius-2xl);
+    border: 0.5px solid var(--glass-border-light);
+    background: var(--glass-bg-light);
+    /* Liquid Glass: 更强的模糊和饱和度 */
+    backdrop-filter: saturate(200%) blur(24px) brightness(1.05);
+    -webkit-backdrop-filter: saturate(200%) blur(24px) brightness(1.05);
+    box-shadow: 
+        /* 外层柔和阴影 */
+        0 4px 24px rgba(0, 0, 0, 0.04),
+        /* 内层高光 */
+        inset 0 1px 0 rgba(255, 255, 255, 0.25),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.02);
+    transition: all 0.3s var(--ease-ios);
+    position: relative;
+    overflow: hidden;
+
+    @media (max-width: 1023px) {
+        flex-direction: column;
+        align-items: stretch;
+        padding: var(--ios-spacing-sm);
+    }
+}
+
+/* Liquid Glass 光泽效果 */
+.top-nav-inner::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--glass-sheen);
+    pointer-events: none;
+    border-radius: inherit;
+}
+
+.top-nav-inner:hover {
+    background: color-mix(in srgb, var(--glass-bg-light) 90%, white);
+    border-color: var(--glass-border-light);
+    box-shadow: 
+        0 6px 32px rgba(0, 0, 0, 0.06),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.02);
+}
+
+.top-nav-left {
+    min-width: 100px;
+    flex-shrink: 0;
+
+    @media (max-width: 1023px) {
+        min-width: 0;
+    }
+}
+
+.top-nav-back {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--ios-spacing-xs);
+    padding: var(--ios-spacing-sm) var(--ios-spacing-lg);
+    border-radius: var(--ios-radius-md);
+    font-size: var(--font-subhead);
+    font-weight: 500;
+    color: var(--accent-color);
+    background: transparent;
+    border: none;
+    transition: all var(--duration-fast) var(--ease-spring-subtle);
+}
+
+.top-nav-back:hover {
+    background: var(--ios-system-fill);
+    transform: translateY(-1px);
+}
+
+.top-nav-back:active {
+    transform: scale(0.96);
+    opacity: 0.8;
+}
+
+.top-nav-back-icon {
+    font-size: var(--font-subhead);
+    line-height: 1;
+}
+
+.top-nav-menu {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--ios-spacing-xs);
+    justify-content: center;
+
+    @media (max-width: 1023px) {
+        justify-content: flex-start;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        padding-bottom: 2px;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
+.top-nav-menu::-webkit-scrollbar {
+    display: none;
+}
+
+.top-nav-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--ios-spacing-sm) var(--ios-spacing-lg);
+    border-radius: var(--ios-radius-md);
+    font-size: var(--font-subhead);
+    font-weight: 500;
+    color: var(--ios-secondary-label);
+    background: transparent;
+    border: none;
+    transition: all var(--duration-fast) var(--ease-spring-subtle);
+    position: relative;
+    overflow: hidden;
+}
+
+.top-nav-link::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--ios-system-fill);
+    border-radius: inherit;
+    opacity: 0;
+    transform: scale(0.8);
+    transition: all var(--duration-fast) var(--ease-spring);
+}
+
+.top-nav-link:hover {
+    color: var(--ios-label);
+}
+
+.top-nav-link:hover::before {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.top-nav-link:active {
+    transform: scale(0.92);
+}
+
+.top-nav-link.is-active {
+    color: var(--accent-color);
+    background: var(--ios-secondary-system-fill);
+}
+
+.top-nav-link.is-active::before {
+    opacity: 0;
+}
+
+.top-nav-link span {
+    position: relative;
+    z-index: 1;
+}
+
+/* 右侧控制区域 */
+.top-nav-right {
+    display: flex;
+    align-items: center;
+    gap: var(--ios-spacing-xs);
+    flex-shrink: 0;
+}
+
+/* 控制按钮（语言切换、主题切换）- 胶囊样式 */
+.top-nav-control {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: var(--ios-spacing-sm) var(--ios-spacing-md);
+    border-radius: var(--ios-radius-md);
+    font-size: var(--font-subhead);
+    font-weight: 500;
+    color: var(--ios-secondary-label);
+    background: var(--ios-tertiary-system-fill);
+    border: 0.5px solid var(--ios-separator);
+    cursor: pointer;
+    transition: all var(--duration-fast) var(--ease-spring-subtle);
+}
+
+.top-nav-control:hover {
+    background: var(--ios-secondary-system-fill);
+    color: var(--ios-label);
+    border-color: var(--ios-opaque-separator);
+}
+
+.top-nav-control:active {
+    transform: scale(0.96);
+}
+
+.top-nav-control svg {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    color: currentColor;
+}
+
+/* 语言选择器 */
+.lang-select {
+    background: transparent;
+    border: none;
+    color: inherit;
+    font-family: inherit;
+    font-size: inherit;
+    font-weight: inherit;
+    cursor: pointer;
+    padding: 0;
+    margin: 0;
+    appearance: none;
+    -webkit-appearance: none;
+    padding-right: 14px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right center;
+    background-size: 12px;
+}
+
+.lang-select:focus {
+    outline: none;
+}
+
+/* 主题切换按钮 */
+.theme-toggle {
+    gap: 4px;
+}
+
+.theme-toggle .icon-tabler-toggle-left,
+.theme-toggle .icon-tabler-toggle-right {
+    width: 16px;
+    height: 16px;
+}
+
+.theme-toggle .icon-tabler-toggle-left {
+    display: block;
+    color: var(--ios-secondary-label);
+}
+
+.theme-toggle .icon-tabler-toggle-right {
+    display: none;
+    color: var(--accent-color);
+}
+
+.theme-toggle .theme-label {
+    font-size: var(--font-subhead);
+}
+
+/* 深色模式下样式 */
+[data-scheme="dark"] .theme-toggle {
+    background: var(--ios-secondary-system-fill);
+    border-color: var(--ios-separator);
+}
+
+[data-scheme="dark"] .theme-toggle .icon-tabler-toggle-left {
+    display: none;
+}
+
+[data-scheme="dark"] .theme-toggle .icon-tabler-toggle-right {
+    display: block;
+}
+
+[data-scheme="dark"] .theme-toggle .theme-label {
+    color: var(--accent-color);
+    font-weight: 600;
+}
+
+/* ============================================
+   9. Sidebar Profile Card (iOS 风格)
+   ============================================ */
+.left-sidebar {
+    --sidebar-element-separation: var(--ios-spacing-lg);
+}
+
+.left-profile-block {
+    margin-top: var(--ios-spacing-sm);
+    display: flex;
+    flex-direction: column;
+    gap: var(--ios-spacing-md);
+    padding: var(--ios-spacing-2xl);
+    background: var(--card-background);
+    border-radius: var(--ios-radius-2xl);
+    box-shadow: var(--shadow-ios-1);
+}
+
+.left-profile-photo-wrap {
+    display: flex;
+    justify-content: center;
+}
+
+.left-profile-photo {
+    width: 240px;
+    height: 240px;
+    border-radius: var(--ios-radius-lg);
+    object-fit: cover;
+    border: 1px solid var(--ios-separator);
+    box-shadow: var(--shadow-ios-2);
+    transition: transform var(--duration-normal) var(--ease-spring);
+
+    @media (max-width: 767px) {
+        width: 180px;
+        height: 180px;
+    }
+}
+
+.left-profile-photo:hover {
+    transform: scale(1.02);
+}
+
+.left-profile-photo--placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, 
+        var(--ios-tertiary-system-fill), 
+        var(--ios-secondary-system-fill));
+    color: var(--ios-tertiary-label);
+    font-size: var(--font-subhead);
+    font-weight: 600;
+}
+
+.left-profile-text {
+    text-align: center;
+}
+
+.left-profile-role {
+    margin: 0;
+    font-size: var(--font-headline);
+    font-weight: 600;
+    color: var(--ios-label);
+    letter-spacing: -0.01em;
+}
+
+.left-profile-location {
+    margin: var(--ios-spacing-xs) 0 0;
+    font-size: var(--font-subhead);
+    color: var(--ios-secondary-label);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--ios-spacing-xs);
+}
+
+.left-profile-location::before {
+    content: '📍';
+    font-size: var(--font-footnote);
+}
+
+.left-profile-contacts {
+    margin-top: var(--ios-spacing-xs);
+    display: flex;
+    flex-direction: column;
+    gap: var(--ios-spacing-xs);
+    align-items: center;
+}
+
+.left-profile-contacts a {
+    color: var(--accent-color);
+    font-size: var(--font-footnote);
+    font-weight: 500;
+    line-height: 1.4;
+    word-break: break-all;
+    padding: var(--ios-spacing-xs) var(--ios-spacing-sm);
+    border-radius: var(--ios-radius-sm);
+    transition: all var(--duration-fast) var(--ease-ios);
+}
+
+.left-profile-contacts a:hover {
+    background: var(--ios-secondary-system-fill);
+    text-decoration: none;
+}
+
+/* ============================================
+   10. Portal Home Cards (iOS 风格)
+   ============================================ */
+.portal-home-card {
+    border-radius: var(--ios-radius-2xl);
+    background: var(--card-background);
+    border: 0.5px solid var(--ios-separator);
+    box-shadow: var(--shadow-ios-1);
+    padding: var(--ios-spacing-xl);
+}
+
+.portal-intro {
+    color: var(--ios-secondary-label);
+    margin-bottom: var(--ios-spacing-lg);
+    font-size: var(--font-body);
+    line-height: 1.6;
+}
+
+.portal-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--ios-spacing-md);
+
+    @media (max-width: 1023px) {
+        grid-template-columns: 1fr;
+    }
+}
+
+.portal-link {
+    display: flex;
+    flex-direction: column;
+    padding: var(--ios-spacing-lg);
+    border-radius: var(--ios-radius-lg);
+    background: var(--ios-secondary-system-background);
+    border: 0.5px solid transparent;
+    color: var(--ios-label);
+    transition: all var(--duration-normal) var(--ease-spring);
+    position: relative;
+    overflow: hidden;
+}
+
+.portal-link::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, 
+        rgba(255,255,255,0.1) 0%, 
+        transparent 100%);
+    opacity: 0;
+    transition: opacity var(--duration-fast) var(--ease-ios);
+}
+
+.portal-link h2 {
+    margin: 0;
+    font-size: var(--font-title-3);
+    font-weight: 600;
+    color: var(--ios-label);
+    letter-spacing: -0.01em;
+    position: relative;
+    z-index: 1;
+}
+
+.portal-link p {
+    margin: var(--ios-spacing-xs) 0 0;
+    font-size: var(--font-subhead);
+    color: var(--ios-secondary-label);
+    line-height: 1.5;
+    position: relative;
+    z-index: 1;
+}
+
+.portal-link:hover {
+    transform: translateY(-3px) scale(1.01);
+    box-shadow: var(--shadow-ios-3);
+    border-color: var(--ios-separator);
+}
+
+.portal-link:hover::before {
+    opacity: 1;
+}
+
+.portal-link:active {
+    transform: scale(0.98);
+    transition-duration: var(--duration-instant);
+}
+
+/* Portal 图标 */
+.portal-icon {
+    position: absolute;
+    top: var(--ios-spacing-lg);
+    right: var(--ios-spacing-lg);
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, 
+        color-mix(in srgb, var(--accent-color) 20%, transparent),
+        color-mix(in srgb, var(--accent-color) 10%, transparent));
+    border: 0.5px solid color-mix(in srgb, var(--accent-color) 30%, transparent);
+    border-radius: var(--ios-radius-md);
+    transition: all var(--duration-normal) var(--ease-spring);
+}
+
+.portal-icon svg {
+    width: 18px;
+    height: 18px;
+    color: var(--accent-color);
+    stroke-width: 1.5;
+}
+
+.portal-link:hover .portal-icon {
+    background: linear-gradient(135deg, 
+        color-mix(in srgb, var(--accent-color) 30%, transparent),
+        color-mix(in srgb, var(--accent-color) 15%, transparent));
+    border-color: color-mix(in srgb, var(--accent-color) 50%, transparent);
+    transform: scale(1.05);
+}
+
+/* ============================================
+   11. News Timeline (iOS 风格)
+   ============================================ */
+.news-timeline-card {
+    border-radius: var(--ios-radius-2xl);
+    background: var(--card-background);
+    border: 0.5px solid var(--ios-separator);
+    box-shadow: var(--shadow-ios-1);
+    padding: var(--ios-spacing-xl);
+}
+
+.news-intro {
+    margin-bottom: var(--ios-spacing-lg);
+    color: var(--ios-secondary-label);
+    font-size: var(--font-body);
+}
+
+.news-group {
+    margin: var(--ios-spacing-xl) 0 var(--ios-spacing-2xl);
+    padding: var(--ios-spacing-lg);
+    border-radius: var(--ios-radius-lg);
+    border: 0.5px solid var(--ios-separator);
+    background: var(--ios-secondary-system-background);
+}
+
+.news-group-title {
+    margin: 0 0 var(--ios-spacing-md);
+    color: var(--ios-label);
+    font-size: var(--font-title-2);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+.news-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    position: relative;
+}
+
+.news-list::before {
+    content: '';
+    position: absolute;
+    left: 6px;
+    top: 8px;
+    bottom: 8px;
+    width: 2px;
+    background: var(--ios-system-fill);
+    border-radius: 1px;
+}
+
+.news-item {
+    display: grid;
+    grid-template-columns: 70px 1fr;
+    gap: var(--ios-spacing-md);
+    margin: 0 0 var(--ios-spacing-md);
+    padding-left: var(--ios-spacing-lg);
+    position: relative;
+}
+
+.news-item:last-child {
+    margin-bottom: 0;
+}
+
+.news-item::before {
+    content: "";
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--accent-color);
+    position: absolute;
+    left: 2px;
+    top: 6px;
+    box-shadow: 0 0 0 4px var(--card-background), 
+                0 0 0 5px var(--accent-color);
+    transition: all var(--duration-fast) var(--ease-spring);
+}
+
+.news-item:hover::before {
+    transform: scale(1.2);
+    box-shadow: 0 0 0 6px var(--card-background), 
+                0 0 0 7px var(--accent-color);
+}
+
+.news-date {
+    color: var(--ios-tertiary-label);
+    font-size: var(--font-footnote);
+    font-weight: 500;
+    margin-top: 2px;
+    font-variant-numeric: tabular-nums;
+}
+
+.news-title {
+    margin: 0;
+    font-size: var(--font-headline);
+    font-weight: 600;
+}
+
+.news-title a {
+    color: var(--ios-label);
+    transition: color var(--duration-fast) var(--ease-ios);
+}
+
+.news-title a:hover {
+    color: var(--accent-color);
+    text-decoration: none;
+}
+
+.news-summary {
+    margin: var(--ios-spacing-xs) 0 0;
+    color: var(--ios-secondary-label);
+    font-size: var(--font-subhead);
+    line-height: 1.5;
+}
+
+/* ============================================
+   12. Article Cards (iOS Cell Style)
+   ============================================ */
+.article-list article {
+    background: var(--card-background);
+    border-radius: var(--ios-radius-2xl);
+    border: 0.5px solid var(--ios-separator);
+    box-shadow: var(--shadow-ios-1);
+    overflow: hidden;
+    transition: all var(--duration-normal) var(--ease-spring);
+}
+
+.article-list article:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-ios-3);
+}
+
+.article-list article:active {
+    transform: scale(0.995);
+    transition-duration: var(--duration-instant);
+}
+
+.article-details {
+    padding: var(--ios-spacing-2xl);
+    gap: var(--ios-spacing-sm);
+}
+
+.article-title {
+    font-size: var(--font-title-2);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--ios-label);
+    line-height: 1.3;
+}
+
+.article-title a {
+    color: inherit;
+}
+
+.article-subtitle {
+    font-size: var(--font-subhead);
+    color: var(--ios-secondary-label);
+    line-height: 1.5;
+    margin-top: var(--ios-spacing-xs);
+}
+
+/* 文章元信息行 - 统一在一行显示 */
+.article-time,
+.article-translations,
+.article-header-tags {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--ios-spacing-sm);
+    margin: 0;
+    padding: 0;
+    
+    time, a, span {
+        font-size: var(--font-footnote);
+        color: var(--ios-tertiary-label);
+        white-space: nowrap;
+        line-height: 1;
+    }
+    
+    svg {
+        width: 14px;
+        height: 14px;
+        stroke-width: 1.5;
+        color: var(--ios-tertiary-label);
+        flex-shrink: 0;
+    }
+}
+
+/* 单个元信息项 */
+.article-meta-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+    padding: 2px 6px;
+    background: var(--ios-tertiary-system-fill);
+    border-radius: var(--ios-radius-sm);
+}
+
+.article-category a,
+.article-tags a {
+    background: var(--ios-secondary-system-fill);
+    color: var(--accent-color);
+    padding: var(--ios-spacing-xs) var(--ios-spacing-md);
+    border-radius: var(--ios-radius-full);
+    font-size: var(--font-caption-1);
+    font-weight: 500;
+    transition: all var(--duration-fast) var(--ease-ios);
+}
+
+.article-category a:hover,
+.article-tags a:hover {
+    background: var(--accent-color);
+    color: white;
+    text-decoration: none;
+}
+
+/* ============================================
+   13. Article Content Styling
+   ============================================ */
+.article-content {
+    font-size: var(--font-body);
+    line-height: 1.7;
+    color: var(--ios-label);
+}
+
+.article-content h1,
+.article-content h2,
+.article-content h3,
+.article-content h4 {
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-top: var(--ios-spacing-2xl);
+    margin-bottom: var(--ios-spacing-md);
+    color: var(--ios-label);
+}
+
+.article-content h1 {
+    font-size: var(--font-title-1);
+}
+
+.article-content h2 {
+    font-size: var(--font-title-2);
+    padding-bottom: var(--ios-spacing-sm);
+    border-bottom: 0.5px solid var(--ios-separator);
+}
+
+.article-content h3 {
+    font-size: var(--font-title-3);
+}
+
+.article-content p {
+    margin-bottom: var(--ios-spacing-lg);
+}
+
+.article-content ul,
+.article-content ol {
+    margin-bottom: var(--ios-spacing-lg);
+    padding-left: var(--ios-spacing-xl);
+}
+
+.article-content li {
+    margin-bottom: var(--ios-spacing-xs);
+}
+
+/* 引用块 iOS 风格 */
+.article-content blockquote {
+    border-left: 3px solid var(--accent-color);
+    background: var(--ios-secondary-system-background);
+    padding: var(--ios-spacing-md) var(--ios-spacing-lg);
+    margin: var(--ios-spacing-lg) 0;
+    border-radius: 0 var(--ios-radius-md) var(--ios-radius-md) 0;
+    color: var(--ios-secondary-label);
+}
+
+/* 代码块 - 强制 JetBrains Mono */
+.article-content pre {
+    background: var(--pre-background-color);
+    border-radius: var(--ios-radius-lg);
+    padding: var(--ios-spacing-lg);
+    margin: var(--ios-spacing-lg) 0;
+    overflow-x: auto;
+    font-family: var(--code-font-family) !important;
+}
+
+.article-content code {
+    font-family: var(--code-font-family) !important;
+    background: var(--ios-tertiary-system-fill);
+    padding: 2px 6px;
+    border-radius: var(--ios-radius-xs);
+    font-size: 0.9em;
+    color: var(--ios-label);
+}
+
+.article-content pre code {
+    background: none;
+    padding: 0;
+    font-size: var(--font-footnote);
+    line-height: 1.6;
+}
+
+/* 链接 iOS 风格 */
+.article-content a {
+    color: var(--accent-color);
+    text-decoration: none;
+    font-weight: 500;
+    border-bottom: 1px solid transparent;
+    transition: border-color var(--duration-fast) var(--ease-ios);
+}
+
+.article-content a:hover {
+    border-bottom-color: var(--accent-color);
+}
+
+/* 图片 iOS 风格 */
+.article-content img {
+    border-radius: var(--ios-radius-lg);
+    max-width: 100%;
+    height: auto;
+}
+
+.article-content figure {
+    margin: var(--ios-spacing-xl) 0;
+}
+
+.article-content figure.gallery-image {
+    border-radius: var(--ios-radius-lg);
+    overflow: hidden;
+}
+
+/* 表格 iOS 风格 */
+.article-content table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin: var(--ios-spacing-lg) 0;
+    border-radius: var(--ios-radius-md);
+    overflow: hidden;
+    border: 0.5px solid var(--ios-separator);
+}
+
+.article-content th {
+    background: var(--ios-secondary-system-background);
+    font-weight: 600;
+    text-align: left;
+    padding: var(--ios-spacing-sm) var(--ios-spacing-md);
+    border-bottom: 0.5px solid var(--ios-separator);
+}
+
+.article-content td {
+    padding: var(--ios-spacing-sm) var(--ios-spacing-md);
+    border-bottom: 0.5px solid var(--ios-separator);
+}
+
+.article-content tr:last-child td {
+    border-bottom: none;
+}
+
+/* ============================================
+   14. Buttons (iOS Style)
+   ============================================ */
+.btn, button, input[type="submit"] {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--ios-spacing-xs);
+    padding: var(--ios-spacing-sm) var(--ios-spacing-lg);
+    border-radius: var(--ios-radius-full);
+    font-size: var(--font-subhead);
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all var(--duration-fast) var(--ease-spring);
+}
+
+.btn-primary {
+    background: var(--accent-color);
+    color: white;
+}
+
+.btn-primary:hover {
+    background: var(--accent-color-darker);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-ios-2);
+}
+
+.btn-primary:active {
+    transform: scale(0.96);
+}
+
+.btn-secondary {
+    background: var(--ios-secondary-system-fill);
+    color: var(--accent-color);
+}
+
+.btn-secondary:hover {
+    background: var(--ios-system-fill);
+}
+
+/* ============================================
+   15. Section Cards (Header)
+   ============================================ */
+.section-card {
+    background: var(--card-background);
+    border-radius: var(--ios-radius-2xl);
+    border: 0.5px solid var(--ios-separator);
+    box-shadow: var(--shadow-ios-1);
+    padding: var(--ios-spacing-2xl);
+    margin-bottom: var(--ios-spacing-xl);
+    transition: all var(--duration-normal) var(--ease-spring);
+}
+
+.section-card:hover {
+    box-shadow: var(--shadow-ios-2);
+}
+
+.section-title {
+    font-size: var(--font-footnote);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--ios-tertiary-label);
+    margin-bottom: var(--ios-spacing-md);
+}
+
+.section-count {
+    font-size: var(--font-caption-1);
+    font-weight: 600;
+    color: var(--accent-color);
+    background: var(--ios-secondary-system-fill);
+    display: inline-block;
+    padding: var(--ios-spacing-xs) var(--ios-spacing-md);
+    border-radius: var(--ios-radius-full);
+    margin-bottom: var(--ios-spacing-sm);
+}
+
+.section-term {
+    font-size: var(--font-large-title);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    color: var(--ios-label);
+    margin: 0;
+}
+
+.section-description {
+    font-size: var(--font-body);
+    color: var(--ios-secondary-label);
+    margin-top: var(--ios-spacing-xs);
+    font-weight: 400;
+}
+
+/* ============================================
+   16. Pagination (iOS Style)
+   ============================================ */
+.pagination {
+    display: flex;
+    justify-content: center;
+    gap: var(--ios-spacing-sm);
+    margin-top: var(--ios-spacing-2xl);
+}
+
+.pagination a,
+.pagination span {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 36px;
+    height: 36px;
+    padding: 0 var(--ios-spacing-md);
+    border-radius: var(--ios-radius-full);
+    font-size: var(--font-subhead);
+    font-weight: 500;
+    transition: all var(--duration-fast) var(--ease-ios);
+}
+
+.pagination a {
+    color: var(--accent-color);
+    background: transparent;
+}
+
+.pagination a:hover {
+    background: var(--ios-secondary-system-fill);
+    text-decoration: none;
+}
+
+.pagination .current {
+    background: var(--accent-color);
+    color: white;
+}
+
+/* ============================================
+   17. Footer
+   ============================================ */
+footer {
+    margin-top: var(--ios-spacing-3xl);
+    padding: var(--ios-spacing-xl) 0;
+    text-align: center;
+    color: var(--ios-tertiary-label);
+    font-size: var(--font-footnote);
+    border-top: 0.5px solid var(--ios-separator);
+}
+
+/* ============================================
+   18. Animations
+   ============================================ */
+@keyframes fade-up-soft {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes scale-in {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes slide-in-right {
+    from {
+        opacity: 0;
+        transform: translateX(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .main-article,
+    .section-card,
+    .left-profile-block,
+    .top-nav-inner {
+        animation: fade-up-soft 0.5s var(--ease-spring-subtle) both;
+    }
+    
+    .portal-link {
+        animation: scale-in 0.5s var(--ease-spring) both;
+    }
+    
+    .portal-link:nth-child(1) { animation-delay: 0ms; }
+    .portal-link:nth-child(2) { animation-delay: 60ms; }
+    .portal-link:nth-child(3) { animation-delay: 120ms; }
+    
+    .article-list article {
+        animation: fade-up-soft 0.5s var(--ease-spring-subtle) both;
+    }
+    
+    .news-group {
+        animation: slide-in-right 0.5s var(--ease-spring-subtle) both;
+    }
+    
+    .news-group:nth-child(1) { animation-delay: 0ms; }
+    .news-group:nth-child(2) { animation-delay: 80ms; }
+    .news-group:nth-child(3) { animation-delay: 160ms; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* ============================================
+   19. Scrollbar (iOS Style)
+   ============================================ */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--ios-system-fill);
+    border-radius: 4px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--ios-secondary-system-fill);
+    background-clip: content-box;
+}
+
+/* ============================================
+   20. Selection (iOS Style)
+   ============================================ */
+::selection {
+    background: var(--accent-color);
+    color: white;
+}
+
+/* ============================================
+   21. Focus States (Accessibility)
+   ============================================ */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+    outline: 2px solid var(--accent-color);
+    outline-offset: 2px;
+}
+
+/* ============================================
+   22. Mobile Optimizations
+   ============================================ */
+@media (max-width: 767px) {
+    :root {
+        --container-padding: 16px;
+        --card-padding: var(--ios-spacing-md);
+    }
+    
+    .section-term {
+        font-size: var(--font-title-1);
+    }
+    
+    .article-title {
+        font-size: var(--font-title-3);
+    }
+    
+    .left-profile-photo {
+        width: 160px;
+        height: 160px;
+    }
+}
+
+/* 触摸设备优化 */
+@media (hover: none) {
+    .portal-link:hover,
+    .article-list article:hover {
+        transform: none;
+        box-shadow: var(--shadow-ios-1);
+    }
+    
+    .portal-link:active,
+    .article-list article:active {
+        transform: scale(0.98);
+        opacity: 0.9;
+    }
+}
+
+
+/* ============================================
+   23. Sidebar Menu Improvements (侧边栏菜单)
+   ============================================ */
+.menu {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.menu li {
+    margin: var(--ios-spacing-xs) 0;
+}
+
+.menu a {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--ios-spacing-sm);
+    padding: var(--ios-spacing-sm) var(--ios-spacing-md);
+    border-radius: var(--ios-radius-md);
+    color: var(--ios-secondary-label);
+    font-size: var(--font-subhead);
+    font-weight: 500;
+    transition: all var(--duration-fast) var(--ease-ios);
+    width: 100%;
+}
+
+.menu a:hover {
+    background: var(--ios-system-fill);
+    color: var(--ios-label);
+    text-decoration: none;
+}
+
+.menu li.current a {
+    background: var(--ios-secondary-system-fill);
+    color: var(--accent-color);
+    font-weight: 600;
+}
+
+/* ============================================
+   24. Article Meta Fixes (日期栏修复)
+   ============================================ */
+.article-header {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ios-spacing-sm);
+}
+
+.article-header .article-time {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--ios-spacing-md);
+}
+
+.article-header .article-time > div {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--ios-spacing-xs);
+    white-space: nowrap;
+}
+
+.article-header .article-time time {
+    display: inline;
+    white-space: nowrap;
+}
+
+/* 文章详情页 meta 信息 */
+.article-page .article-time {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--ios-spacing-sm);
+    margin-top: var(--ios-spacing-sm);
+}
+
+.article-page .article-time > * {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* 更新时间特殊样式 */
+.article-meta-item--lastmod {
+    background: color-mix(in srgb, var(--accent-color) 10%, transparent);
+    color: var(--accent-color);
+}
+
+.article-meta-item--lastmod time,
+.article-meta-item--lastmod svg {
+    color: var(--accent-color);
+}
+
+/* ============================================
+   26. General Improvements
+   ============================================ */
+
+/* 基础 HTML 元素 */
+html {
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+    font-family: var(--ios-font-family);
+    font-size: var(--font-body);
+    line-height: 1.6;
+    color: var(--ios-label);
+    background: var(--body-background);
+}
+
+/* 链接默认样式 */
+a {
+    color: var(--accent-color);
+    text-decoration: none;
+    transition: color var(--duration-fast) var(--ease-ios);
+}
+
+a:hover {
+    color: var(--accent-color-darker);
+}
+
+/* 图片默认样式 */
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* 水平线 */
+hr {
+    border: none;
+    height: 0.5px;
+    background: var(--ios-separator);
+    margin: var(--ios-spacing-2xl) 0;
+}
+
+/* ============================================
+   27. Hugo Specific Fixes
+   ============================================ */
+
+/* 修复文章列表默认样式 */
+.article-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ios-spacing-xl);
+}
+
+/* 修复分页容器 */
+.pagination-container {
+    margin-top: var(--ios-spacing-2xl);
+}
+
+/* 修复 Taxonomy 页面 */
+.taxonomy-card {
+    background: var(--card-background);
+    border-radius: var(--ios-radius-xl);
+    padding: var(--ios-spacing-lg);
+    margin-bottom: var(--ios-spacing-md);
+}
+
+/* 修复搜索页面 */
+.search-result {
+    padding: var(--ios-spacing-md) 0;
+    border-bottom: 0.5px solid var(--ios-separator);
+}
+
+.search-result:last-child {
+    border-bottom: none;
+}
+
+/* ============================================
+   28. Print Styles
+   ============================================ */
+@media print {
+    .top-nav,
+    .left-sidebar,
+    .right-sidebar,
+    .pagination,
+    .top-nav-right {
+        display: none !important;
+    }
+    
+    body {
+        background: white !important;
+        color: black !important;
+    }
+    
+    .article-content a {
+        color: black !important;
+        text-decoration: underline !important;
+    }
+    
+    .article-content pre {
+        background: #f5f5f5 !important;
+        border: 1px solid #ddd !important;
+    }
+}

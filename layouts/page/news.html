@@ -1,0 +1,67 @@
+{{ define "main" }}
+{{- $newsItems := where .Site.RegularPages "Section" "news" -}}
+{{- $newsItems = $newsItems.ByDate.Reverse -}}
+
+<header>
+    <h3 class="section-title">{{ if eq .Site.Language.Lang "zh-cn" }}时间线{{ else }}Timeline{{ end }}</h3>
+    <div class="section-card">
+        <div class="section-details">
+            <h3 class="section-count">{{ len $newsItems }} {{ if eq .Site.Language.Lang "zh-cn" }}条更新{{ else }}updates{{
+                end }}</h3>
+            <h1 class="section-term">{{ .Title }}</h1>
+            {{ with .Params.description }}
+            <h2 class="section-description">{{ . }}</h2>
+            {{ end }}
+        </div>
+    </div>
+</header>
+
+<article class="main-article news-timeline-card">
+    <section class="article-content">
+        {{ with .Content }}
+        <div class="news-intro">{{ . }}</div>
+        {{ end }}
+
+        {{ if gt (len $newsItems) 0 }}
+        <div class="news-timeline">
+            {{ range $group := $newsItems.GroupByDate "2006-01" }}
+            {{- $groupDate := time.AsTime (printf "%s-01" $group.Key) -}}
+            <section class="news-group">
+                <h2 class="news-group-title">
+                    {{ if eq $.Site.Language.Lang "zh-cn" }}
+                    {{ $groupDate.Format "2006年01月" }}
+                    {{ else }}
+                    {{ $groupDate.Format "January 2006" }}
+                    {{ end }}
+                </h2>
+
+                <ol class="news-list">
+                    {{ range $group.Pages }}
+                    <li class="news-item">
+                        <time class="news-date">{{ .Date.Format "01-02" }}</time>
+                        <div class="news-body">
+                            <h3 class="news-title"><a href="{{ .RelPermalink }}">{{ .Title }}</a></h3>
+                            {{ with .Params.summary }}
+                            <p class="news-summary">{{ . }}</p>
+                            {{ else }}
+                            <p class="news-summary">{{ .Summary }}</p>
+                            {{ end }}
+                        </div>
+                    </li>
+                    {{ end }}
+                </ol>
+            </section>
+            {{ end }}
+        </div>
+        {{ else }}
+        <p>{{ if eq .Site.Language.Lang "zh-cn" }}还没有 News 条目。{{ else }}No news entries yet.{{ end }}</p>
+        {{ end }}
+    </section>
+</article>
+
+{{ partialCached "footer/footer" . }}
+{{ end }}
+
+{{ define "right-sidebar" }}
+{{ partial "sidebar/right.html" (dict "Context" . "Scope" "homepage") }}
+{{ end }}

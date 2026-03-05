@@ -1,0 +1,67 @@
+{{ define "main" }}
+{{- $blogPage := .Site.GetPage "/post" -}}
+{{- $profilePage := .Site.GetPage "/page/profile" -}}
+{{- $newsPage := .Site.GetPage "/page/news" -}}
+
+<header>
+    <h3 class="section-title">{{ T "list.section" }}</h3>
+    <div class="section-card">
+        <div class="section-details">
+            <h3 class="section-count">Portal</h3>
+            <h1 class="section-term">{{ .Title }}</h1>
+            {{ with .Params.description }}
+            <h2 class="section-description">{{ . }}</h2>
+            {{ end }}
+        </div>
+    </div>
+</header>
+
+<article class="main-article portal-home-card">
+    <section class="article-content">
+        {{ with .Content }}
+        <div class="portal-intro">{{ . }}</div>
+        {{ end }}
+
+        <div class="portal-grid">
+            {{ with $blogPage }}
+            <a class="portal-link" href="{{ .RelPermalink }}">
+                <div class="portal-icon">
+                    {{ partial "helper/icon" "archives" }}
+                </div>
+                <h2>{{ if eq $.Site.Language.Lang "zh-cn" }}博客{{ else }}Blog{{ end }}</h2>
+                <p>{{ if eq $.Site.Language.Lang "zh-cn" }}查看最新文章与技术更新{{ else }}Latest posts and updates{{ end }}</p>
+            </a>
+            {{ end }}
+
+            {{ with $profilePage }}
+            <a class="portal-link" href="{{ .RelPermalink }}">
+                <div class="portal-icon">
+                    {{ partial "helper/icon" "user" }}
+                </div>
+                <h2>{{ if eq $.Site.Language.Lang "zh-cn" }}个人档案{{ else }}Profile{{ end }}</h2>
+                <p>{{ if eq $.Site.Language.Lang "zh-cn" }}教育、项目、技能与经历{{ else }}Education, projects, skills and
+                    experience{{ end }}</p>
+            </a>
+            {{ end }}
+
+            {{ with $newsPage }}
+            <a class="portal-link" href="{{ .RelPermalink }}">
+                <div class="portal-icon">
+                    {{ partial "helper/icon" "messages" }}
+                </div>
+                <h2>{{ if eq $.Site.Language.Lang "zh-cn" }}News{{ else }}News{{ end }}</h2>
+                <p>{{ if eq $.Site.Language.Lang "zh-cn" }}近期动态与里程碑记录{{ else }}Recent milestones and timeline updates{{
+                    end }}</p>
+            </a>
+            {{ end }}
+        </div>
+    </section>
+</article>
+
+{{- partial "pagination.html" . -}}
+{{- partial "footer/footer" . -}}
+{{ end }}
+
+{{ define "right-sidebar" }}
+{{ partial "sidebar/right.html" (dict "Context" . "Scope" "homepage") }}
+{{ end }}

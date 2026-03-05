@@ -1,0 +1,49 @@
+# English translations override
+# Override theme default translations
+
+toggleMenu = "Toggle Menu"
+darkMode   = "Dark"
+lightMode  = "Light"
+
+[list]
+    page       = "{{ .Count }} pages"
+    section    = "Section"
+    subsection = "Subsection"
+
+[article]
+    back            = "Back"
+    tableOfContents = "Table of Contents"
+    relatedContent  = "Related Content"
+    lastUpdatedOn   = "Last updated on"
+    readingTime     = "{{ .Count }} min read"
+
+    [article.alert]
+        note      = "Note"
+        tip       = "Tip"
+        important = "Important"
+        warning   = "Warning"
+        caution   = "Caution"
+
+[notFound]
+    title    = "404 Not Found"
+    subtitle = "Page not found"
+
+[widget]
+    [widget.archives]
+        title = "Archives"
+        more  = "More"
+
+    [widget.tagCloud]
+        title = "Tags"
+
+    [widget.categoriesCloud]
+        title = "Categories"
+
+[search]
+    title       = "Search"
+    placeholder = "Search keywords..."
+    resultTitle = "#PAGES_COUNT results (#TIME_SECONDS seconds)"
+
+[footer]
+    builtWith  = "Built with {{ .Generator }}"
+    designedBy = "Theme {{ .Theme }} designed by {{ .DesignedBy }}"

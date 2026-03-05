@@ -1,0 +1,54 @@
+{{- $currentPage := . -}}
+{{- $isHomeLike := eq .RelPermalink .Site.Home.RelPermalink -}}
+<nav class="top-nav" aria-label="Primary">
+    <div class="top-nav-inner">
+        <div class="top-nav-left">
+            {{ if not $isHomeLike }}
+            <a class="top-nav-back" href="{{ .Site.Home.RelPermalink }}">
+                <span class="top-nav-back-icon" aria-hidden="true">&larr;</span>
+                <span>{{ if eq .Site.Language.Lang "zh-cn" }}返回主页{{ else }}Back Home{{ end }}</span>
+            </a>
+            {{ end }}
+        </div>
+
+        <ol class="top-nav-menu">
+            {{ range .Site.Menus.main }}
+            {{ $active := or (eq $currentPage.RelPermalink .URL) (or ($currentPage.HasMenuCurrent "main" .)
+            ($currentPage.IsMenuCurrent "main" .)) }}
+            <li>
+                <a class="top-nav-link {{ if $active }}is-active{{ end }}" href="{{ .URL }}">{{ .Name }}</a>
+            </li>
+            {{ end }}
+        </ol>
+
+        <!-- 右侧：语言切换 + 主题切换 -->
+        <div class="top-nav-right">
+            {{- $currentLanguageCode := .Language.Lang -}}
+            {{ if hugo.IsMultilingual }}
+            <div class="top-nav-control">
+                {{ partial "helper/icon" "language" }}
+                <select class="lang-select" name="language" title="language" onchange="window.location.href = this.selectedOptions[0].value">
+                    {{ range .Site.Home.AllTranslations }}
+                    {{ $target := . }}
+                    {{ range $.AllTranslations }}
+                    {{ if eq .Language.Lang $target.Language.Lang }}
+                    {{ $target = . }}
+                    {{ end }}
+                    {{ end }}
+                    <option value="{{ $target.RelPermalink }}" {{ if eq $target.Language.Lang $currentLanguageCode }}selected{{ end }}>{{ .Language.LanguageName }}</option>
+                    {{ end }}
+                </select>
+            </div>
+            {{ end }}
+
+            {{ if .Site.Params.colorScheme.toggle }}
+            <button class="top-nav-control theme-toggle" id="dark-mode-toggle" title="{{ if eq .Site.Language.Lang "zh-cn" }}切换深色/浅色模式{{ else }}Toggle Light/Dark Mode{{ end }}" aria-label="{{ T "darkMode" }}">
+                {{ partial "helper/icon" "toggle-left" }}
+                {{ partial "helper/icon" "toggle-right" }}
+                <span class="theme-label-light">{{ T "lightMode" }}</span>
+                <span class="theme-label-dark">{{ T "darkMode" }}</span>
+            </button>
+            {{ end }}
+        </div>
+    </div>
+</nav>

@@ -2,3 +2,77 @@ baseurl = 'https://yanlinee.github.io/linee-blog'
 languageCode = 'zh-cn'
 theme = 'stack'
 title = '王棪 / Yan Wang'
+
+defaultContentLanguage = 'zh-cn'
+
+[languages]
+	[languages.zh-cn]
+		languageName = '中文'
+		languageCode = 'zh-CN'
+		weight = 1
+		title = '王棪 / Yan Wang'
+
+		[[languages.zh-cn.menu.main]]
+			name = '主页'
+			url = '/'
+			weight = 10
+
+		[[languages.zh-cn.menu.main]]
+			name = '博客'
+			url = '/post/'
+			weight = 20
+
+		[[languages.zh-cn.menu.main]]
+			name = '档案'
+			url = '/page/profile/'
+			weight = 30
+
+		[[languages.zh-cn.menu.main]]
+			name = 'News'
+			url = '/page/news/'
+			weight = 40
+
+	[languages.en]
+		languageName = 'English'
+		languageCode = 'en-US'
+		weight = 2
+		title = 'Yan Wang'
+
+		[[languages.en.menu.main]]
+			name = 'Home'
+			url = '/en/'
+			weight = 10
+
+		[[languages.en.menu.main]]
+			name = 'Blog'
+			url = '/en/post/'
+			weight = 20
+
+		[[languages.en.menu.main]]
+			name = 'Profile'
+			url = '/en/page/profile/'
+			weight = 30
+
+		[[languages.en.menu.main]]
+			name = 'News'
+			url = '/en/page/news/'
+			weight = 40
+
+[params]
+	[params.colorScheme]
+		toggle = true  # 启用深色/浅色模式切换
+		default = "light"  # 默认使用浅色模式
+
+[params.sidebar]
+	subtitle = ""
+	avatar = ""
+
+[params.leftProfile]
+	enabled = true
+	photo = "img/profile.jpeg"
+	photoAlt = "Yan Wang"
+	role = "CS @ XJTU | ML & Systems"
+	location = "Xi'an, China"
+	email = "embersdlc@gmail.com"
+	github = "https://github.com/yourname"
+	instagram = ""
