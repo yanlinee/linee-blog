@@ -41,11 +41,11 @@
                         <time class="news-date">{{ .Date.Format "01-02" }}</time>
                         <div class="news-body">
                             <h3 class="news-title"><a href="{{ .RelPermalink }}">{{ .Title }}</a></h3>
-                            {{ with .Params.summary }}
-                            <p class="news-summary">{{ . }}</p>
-                            {{ else }}
-                            <p class="news-summary">{{ .Summary }}</p>
+                            {{ $newsSummary := .Params.summary | default .Params.description | strings.TrimSpace }}
+                            {{ if eq $newsSummary "" }}
+                            {{ $newsSummary = T "article.summaryPlaceholder" }}
                             {{ end }}
+                            <p class="news-summary">{{ $newsSummary }}</p>
                         </div>
                     </li>
                     {{ end }}

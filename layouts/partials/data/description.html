@@ -1,0 +1,14 @@
+<!-- Prefer explicit summary/description fields, never body-derived .Summary -->
+{{ $description := .Site.Params.sidebar.subtitle }}
+
+{{ if .Site.Params.description }}
+{{ $description = .Site.Params.description }}
+{{ end }}
+
+{{ if .Description }}
+{{ $description = .Description }}
+{{ else if .IsPage }}
+{{ $description = .Params.summary | default .Params.description | default $description }}
+{{ end }}
+
+{{ return (replaceRE "\n" " " $description | plainify) }}

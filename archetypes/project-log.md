@@ -4,7 +4,19 @@ draft = true
 title = '{{ replace .File.ContentBaseName "-" " " | title }}'
 summary = ''
 project = ''
-entryType = 'note'
-stage = ''
-disclosure = 'public'
+entryType = 'project-log'
+stage = 'build'
+disclosure = 'sanitized'
 +++
+
+## Context
+
+-
+
+## What changed
+
+-
+
+## Outcome
+
+-

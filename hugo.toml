@@ -18,9 +18,19 @@ defaultContentLanguage = 'zh-cn'
 			weight = 10
 
 		[[languages.zh-cn.menu.main]]
-			name = '博客'
+			name = '项目'
+			url = '/projects/'
+			weight = 15
+
+		[[languages.zh-cn.menu.main]]
+			name = '技术博客'
 			url = '/post/'
 			weight = 20
+
+		[[languages.zh-cn.menu.main]]
+			name = '读书笔记'
+			url = '/reading/'
+			weight = 25
 
 		[[languages.zh-cn.menu.main]]
 			name = '档案'
@@ -44,9 +54,19 @@ defaultContentLanguage = 'zh-cn'
 			weight = 10
 
 		[[languages.en.menu.main]]
-			name = 'Blog'
+			name = 'Projects'
+			url = '/en/projects/'
+			weight = 15
+
+		[[languages.en.menu.main]]
+			name = 'Tech Blog'
 			url = '/en/post/'
 			weight = 20
+
+		[[languages.en.menu.main]]
+			name = 'Reading Notes'
+			url = '/en/reading/'
+			weight = 25
 
 		[[languages.en.menu.main]]
 			name = 'Profile'
@@ -62,6 +82,9 @@ defaultContentLanguage = 'zh-cn'
 	[params.colorScheme]
 		toggle = true  # 启用深色/浅色模式切换
 		default = "light"  # 默认使用浅色模式
+
+	[params.motion]
+		level = "normal"  # subtle | normal | strong | off
 
 [params.sidebar]
 	subtitle = ""

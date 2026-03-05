@@ -1,6 +1,6 @@
 +++
-title = "Blog"
-description = "Latest News & Posts: This page contains recent articles and updates."
+title = "Tech Blog"
+description = "Engineering posts, technical write-ups, and project logs."
 +++
 
-Welcome to the blog page. Posts are listed in reverse chronological order.
+Welcome to the tech blog. Posts are listed in reverse chronological order.

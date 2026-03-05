@@ -2,6 +2,7 @@
 date = '2026-03-05T12:19:57+08:00'
 draft = false
 title = 'My First Post'
+description = ""
 +++
 
 # Welcome to my blog

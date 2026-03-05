@@ -5,6 +5,8 @@ description = "Welcome to my site portal"
 
 This is the main portal of my website.
 
-- Go to **Blog** for latest articles and updates
-- Go to **Profile** for education, projects and skills
-- Go to **News** for recent milestones and timeline notes
+- Go to **Projects** for context, process, and outcomes of each project
+- Go to **Tech Blog** for engineering write-ups, technical notes, and project logs
+- Go to **Reading Notes** for long-term reading highlights and reflections
+- Go to **Profile** for education, projects, and skills overview
+- Go to **News** for recent updates and milestone tracking

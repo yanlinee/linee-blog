@@ -2,18 +2,185 @@
     (() => {
         const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+        const motionLevel = '{{ .Site.Params.motion.level | default "normal" }}';
+        const motionProfiles = {
+            off: {
+                enableCardFloat: false,
+                enableNetwork: false
+            },
+            subtle: {
+                enableCardFloat: true,
+                enableNetwork: true,
+                followLerp: 0.1,
+                liftLerp: 0.09,
+                lift: 6,
+                z: 9,
+                tx: 6,
+                ty: 5,
+                rx: 3.6,
+                ry: 3.6,
+                pointCountScale: 0.7,
+                offsetFactor: 0.02,
+                linkDistance: 145,
+                linkAlpha: 0.4,
+                lineWidth: 1,
+                pointAlpha: 0.38,
+                pointRadius: 1.4
+            },
+            normal: {
+                enableCardFloat: true,
+                enableNetwork: true,
+                followLerp: 0.14,
+                liftLerp: 0.12,
+                lift: 9,
+                z: 14,
+                tx: 10,
+                ty: 8,
+                rx: 5.2,
+                ry: 5.2,
+                pointCountScale: 1,
+                offsetFactor: 0.035,
+                linkDistance: 170,
+                linkAlpha: 0.55,
+                lineWidth: 1.1,
+                pointAlpha: 0.5,
+                pointRadius: 1.8
+            },
+            strong: {
+                enableCardFloat: true,
+                enableNetwork: true,
+                followLerp: 0.18,
+                liftLerp: 0.14,
+                lift: 12,
+                z: 20,
+                tx: 13,
+                ty: 11,
+                rx: 6.8,
+                ry: 6.8,
+                pointCountScale: 1.2,
+                offsetFactor: 0.05,
+                linkDistance: 190,
+                linkAlpha: 0.68,
+                lineWidth: 1.2,
+                pointAlpha: 0.6,
+                pointRadius: 2.1
+            }
+        };
+        const profile = motionProfiles[motionLevel] || motionProfiles.normal;
+
+        // Left outline scrollspy: highlight current section and keep it visible
+        (() => {
+            const outlineNav = document.getElementById('ArticleOutlineNav');
+            if (!outlineNav) return;
+
+            const links = Array.from(outlineNav.querySelectorAll('a[href^="#"]'));
+            if (!links.length) return;
+
+            const toId = (href) => decodeURIComponent((href || '').replace(/^#/, ''));
+            const linkById = new Map();
+            links.forEach((link) => {
+                const id = toId(link.getAttribute('href'));
+                if (id) linkById.set(id, link);
+            });
+
+            const headings = Array.from(document.querySelectorAll('.article-content h1[id], .article-content h2[id], .article-content h3[id], .article-content h4[id], .article-content h5[id], .article-content h6[id]'))
+                .filter((heading) => linkById.has(heading.id));
+
+            if (!headings.length) return;
+
+            const outlineBox = outlineNav.closest('.left-outline-block');
+            let activeId = '';
+
+            const scrollActiveIntoView = (activeLink) => {
+                if (!activeLink || !outlineBox) return;
+                const linkTop = activeLink.offsetTop;
+                const linkBottom = linkTop + activeLink.offsetHeight;
+                const viewTop = outlineBox.scrollTop;
+                const viewBottom = viewTop + outlineBox.clientHeight;
+
+                if (linkTop < viewTop + 24 || linkBottom > viewBottom - 24) {
+                    const targetTop = Math.max(0, linkTop - outlineBox.clientHeight * 0.35);
+                    outlineBox.scrollTo({
+                        top: targetTop,
+                        behavior: reducedMotion ? 'auto' : 'smooth'
+                    });
+                }
+            };
+
+            const setActive = (id) => {
+                if (!id || id === activeId) return;
+                activeId = id;
+
+                links.forEach((link) => {
+                    const isActive = toId(link.getAttribute('href')) === id;
+                    link.classList.toggle('is-active', isActive);
+                    const li = link.closest('li');
+                    if (li) {
+                        li.classList.toggle('active', isActive);
+                        li.classList.remove('active-parent');
+                    }
+                });
+
+                const activeLink = linkById.get(id);
+                if (activeLink) {
+                    let currentLi = activeLink.closest('li');
+                    while (currentLi) {
+                        currentLi.classList.add('active-parent');
+                        const parentList = currentLi.parentElement;
+                        currentLi = parentList ? parentList.closest('li') : null;
+                    }
+                }
+
+                scrollActiveIntoView(activeLink);
+            };
+
+            const updateActive = () => {
+                const scanLine = window.scrollY + 170;
+                let current = headings[0].id;
+
+                for (const heading of headings) {
+                    if (heading.offsetTop <= scanLine) {
+                        current = heading.id;
+                    } else {
+                        break;
+                    }
+                }
+
+                setActive(current);
+            };
+
+            let ticking = false;
+            const onScroll = () => {
+                if (ticking) return;
+                ticking = true;
+                requestAnimationFrame(() => {
+                    updateActive();
+                    ticking = false;
+                });
+            };
+
+            links.forEach((link) => {
+                link.addEventListener('click', () => {
+                    setActive(toId(link.getAttribute('href')));
+                });
+            });
+
+            window.addEventListener('scroll', onScroll, { passive: true });
+            window.addEventListener('resize', onScroll, { passive: true });
+            updateActive();
+        })();
 
         // Subtle mouse-reactive floating cards
-        if (!reducedMotion && finePointer) {
-            const cards = document.querySelectorAll('.section-card, .portal-home-card, .news-timeline-card, .article-list article, .left-profile-block');
+        if (!reducedMotion && finePointer && profile.enableCardFloat) {
+            const cards = document.querySelectorAll('.section-card, .portal-home-card, .news-timeline-card, .article-list article, .left-profile-block, .left-outline-block');
 
             const animateCard = (card, state) => {
-                state.current.x += (state.target.x - state.current.x) * 0.14;
-                state.current.y += (state.target.y - state.current.y) * 0.14;
-                state.current.rx += (state.target.rx - state.current.rx) * 0.14;
-                state.current.ry += (state.target.ry - state.current.ry) * 0.14;
-                state.current.lift += (state.target.lift - state.current.lift) * 0.12;
-                state.current.z += (state.target.z - state.current.z) * 0.12;
+                state.current.x += (state.target.x - state.current.x) * profile.followLerp;
+                state.current.y += (state.target.y - state.current.y) * profile.followLerp;
+                state.current.rx += (state.target.rx - state.current.rx) * profile.followLerp;
+                state.current.ry += (state.target.ry - state.current.ry) * profile.followLerp;
+                state.current.lift += (state.target.lift - state.current.lift) * profile.liftLerp;
+                state.current.z += (state.target.z - state.current.z) * profile.liftLerp;
 
                 card.style.setProperty('--float-x', `${state.current.x.toFixed(2)}px`);
                 card.style.setProperty('--float-y', `${state.current.y.toFixed(2)}px`);
@@ -59,8 +226,8 @@
                 card.addEventListener('pointerenter', () => {
                     state.hovering = true;
                     card.classList.add('is-floating');
-                    state.target.lift = 9;
-                    state.target.z = 14;
+                    state.target.lift = profile.lift;
+                    state.target.z = profile.z;
                     ensureAnimation(card, state);
                 });
 
@@ -69,12 +236,12 @@
                     const x = (event.clientX - rect.left) / rect.width;
                     const y = (event.clientY - rect.top) / rect.height;
 
-                    state.target.x = (x - 0.5) * 10;
-                    state.target.y = (y - 0.5) * 8;
-                    state.target.rx = (0.5 - y) * 5.2;
-                    state.target.ry = (x - 0.5) * 5.2;
-                    state.target.lift = 9;
-                    state.target.z = 14;
+                    state.target.x = (x - 0.5) * profile.tx;
+                    state.target.y = (y - 0.5) * profile.ty;
+                    state.target.rx = (0.5 - y) * profile.rx;
+                    state.target.ry = (x - 0.5) * profile.ry;
+                    state.target.lift = profile.lift;
+                    state.target.z = profile.z;
                     ensureAnimation(card, state);
                 });
 
@@ -92,7 +259,7 @@
         }
 
         // Floating network background reacting to pointer movement
-        if (reducedMotion) {
+        if (reducedMotion || !profile.enableNetwork) {
             return;
         }
 
@@ -117,7 +284,8 @@
         };
 
         const createPoints = () => {
-            const count = window.innerWidth > 1200 ? 72 : (window.innerWidth > 800 ? 54 : 38);
+            const baseCount = window.innerWidth > 1200 ? 72 : (window.innerWidth > 800 ? 54 : 38);
+            const count = Math.max(14, Math.round(baseCount * profile.pointCountScale));
             points = Array.from({ length: count }, () => ({
                 x: Math.random() * width,
                 y: Math.random() * height,
@@ -146,8 +314,8 @@
         const draw = () => {
             ctx.clearRect(0, 0, width, height);
 
-            const offsetX = (pointer.x - width / 2) * 0.035;
-            const offsetY = (pointer.y - height / 2) * 0.035;
+            const offsetX = (pointer.x - width / 2) * profile.offsetFactor;
+            const offsetY = (pointer.y - height / 2) * profile.offsetFactor;
             const baseColor = lineColor();
 
             for (const p of points) {
@@ -172,13 +340,13 @@
                     const dy = y1 - y2;
                     const dist = Math.hypot(dx, dy);
 
-                    if (dist < 170) {
-                        const alpha = (1 - dist / 170) * 0.55;
+                    if (dist < profile.linkDistance) {
+                        const alpha = (1 - dist / profile.linkDistance) * profile.linkAlpha;
                         ctx.strokeStyle = baseColor.replace(/rgba?\(([^)]+)\)/, (m, inner) => {
                             const rgb = inner.split(',').slice(0, 3).join(',');
                             return `rgba(${rgb}, ${alpha.toFixed(3)})`;
                         });
-                        ctx.lineWidth = 1.1;
+                        ctx.lineWidth = profile.lineWidth;
                         ctx.beginPath();
                         ctx.moveTo(x1, y1);
                         ctx.lineTo(x2, y2);
@@ -186,9 +354,9 @@
                     }
                 }
 
-                ctx.fillStyle = 'rgba(120, 120, 128, 0.5)';
+                ctx.fillStyle = `rgba(120, 120, 128, ${profile.pointAlpha})`;
                 ctx.beginPath();
-                ctx.arc(x1, y1, 1.8, 0, Math.PI * 2);
+                ctx.arc(x1, y1, profile.pointRadius, 0, Math.PI * 2);
                 ctx.fill();
             }
 

@@ -16,6 +16,7 @@ lightMode  = "Light"
     relatedContent  = "Related Content"
     lastUpdatedOn   = "Last updated on"
     readingTime     = "{{ .Count }} min read"
+    summaryPlaceholder = "Summary coming soon"
 
     [article.alert]
         note      = "Note"

@@ -1,60 +1,148 @@
+{{ define "body-class" }}
+home-page
+{{ end }}
+
 {{ define "main" }}
 {{- $blogPage := .Site.GetPage "/post" -}}
+{{- $projectsPage := .Site.GetPage "/projects" -}}
+{{- $readingPage := .Site.GetPage "/reading" -}}
 {{- $profilePage := .Site.GetPage "/page/profile" -}}
 {{- $newsPage := .Site.GetPage "/page/news" -}}
+{{- $projectPages := where .Site.RegularPages "Section" "projects" -}}
+{{- $techPages := where .Site.RegularPages "Section" "post" -}}
+{{- $readingPages := where .Site.RegularPages "Section" "reading" -}}
 
-<header>
-    <h3 class="section-title">{{ T "list.section" }}</h3>
-    <div class="section-card">
-        <div class="section-details">
-            <h3 class="section-count">Portal</h3>
-            <h1 class="section-term">{{ .Title }}</h1>
-            {{ with .Params.description }}
-            <h2 class="section-description">{{ . }}</h2>
-            {{ end }}
-        </div>
-    </div>
-</header>
+<article class="main-article portal-home-card portal-home-shell">
+    <section class="portal-home-stack">
+        <section class="portal-home-mini portal-home-mini--section">
+            <h3 class="section-title">{{ T "list.section" }}</h3>
+            <div class="section-details">
+                <h3 class="section-count">Portal</h3>
+                <h1 class="section-term">{{ .Title }}</h1>
+                {{ with .Params.description }}
+                <h2 class="section-description">{{ . }}</h2>
+                {{ end }}
+            </div>
+        </section>
 
-<article class="main-article portal-home-card">
-    <section class="article-content">
         {{ with .Content }}
-        <div class="portal-intro">{{ . }}</div>
+        <section class="portal-home-mini portal-home-mini--intro">
+            <div class="portal-intro">{{ . }}</div>
+        </section>
         {{ end }}
 
-        <div class="portal-grid">
-            {{ with $blogPage }}
-            <a class="portal-link" href="{{ .RelPermalink }}">
-                <div class="portal-icon">
-                    {{ partial "helper/icon" "archives" }}
-                </div>
-                <h2>{{ if eq $.Site.Language.Lang "zh-cn" }}博客{{ else }}Blog{{ end }}</h2>
-                <p>{{ if eq $.Site.Language.Lang "zh-cn" }}查看最新文章与技术更新{{ else }}Latest posts and updates{{ end }}</p>
-            </a>
-            {{ end }}
+        <section class="portal-home-mini portal-home-mini--links">
+            <h3 class="portal-mini-title">{{ if eq $.Site.Language.Lang "zh-cn" }}快速导航{{ else }}Quick Navigation{{ end
+                }}</h3>
+            <div class="portal-grid">
+                {{ with $projectsPage }}
+                <a class="portal-link" href="{{ .RelPermalink }}">
+                    <div class="portal-icon">
+                        {{ partial "helper/icon" "categories" }}
+                    </div>
+                    <h2>{{ if eq $.Site.Language.Lang "zh-cn" }}项目{{ else }}Projects{{ end }}</h2>
+                    <p>{{ if eq $.Site.Language.Lang "zh-cn" }}按项目查看完整背景、过程与产出{{ else }}Project-based stories with
+                        context,
+                        process and outcomes{{ end }}</p>
+                </a>
+                {{ end }}
 
-            {{ with $profilePage }}
-            <a class="portal-link" href="{{ .RelPermalink }}">
-                <div class="portal-icon">
-                    {{ partial "helper/icon" "user" }}
-                </div>
-                <h2>{{ if eq $.Site.Language.Lang "zh-cn" }}个人档案{{ else }}Profile{{ end }}</h2>
-                <p>{{ if eq $.Site.Language.Lang "zh-cn" }}教育、项目、技能与经历{{ else }}Education, projects, skills and
-                    experience{{ end }}</p>
-            </a>
-            {{ end }}
+                {{ with $blogPage }}
+                <a class="portal-link" href="{{ .RelPermalink }}">
+                    <div class="portal-icon">
+                        {{ partial "helper/icon" "archives" }}
+                    </div>
+                    <h2>{{ if eq $.Site.Language.Lang "zh-cn" }}技术博客{{ else }}Tech Blog{{ end }}</h2>
+                    <p>{{ if eq $.Site.Language.Lang "zh-cn" }}技术文章、实践总结与项目日志{{ else }}Technical posts, engineering
+                        notes
+                        and project logs{{ end }}</p>
+                </a>
+                {{ end }}
 
-            {{ with $newsPage }}
-            <a class="portal-link" href="{{ .RelPermalink }}">
-                <div class="portal-icon">
-                    {{ partial "helper/icon" "messages" }}
+                {{ with $readingPage }}
+                <a class="portal-link" href="{{ .RelPermalink }}">
+                    <div class="portal-icon">
+                        {{ partial "helper/icon" "hash" }}
+                    </div>
+                    <h2>{{ if eq $.Site.Language.Lang "zh-cn" }}读书笔记{{ else }}Reading Notes{{ end }}</h2>
+                    <p>{{ if eq $.Site.Language.Lang "zh-cn" }}书籍摘录、方法反思与长期思考{{ else }}Book notes, reflections and
+                        long-form
+                        thinking{{ end }}</p>
+                </a>
+                {{ end }}
+
+                {{ with $profilePage }}
+                <a class="portal-link" href="{{ .RelPermalink }}">
+                    <div class="portal-icon">
+                        {{ partial "helper/icon" "user" }}
+                    </div>
+                    <h2>{{ if eq $.Site.Language.Lang "zh-cn" }}个人档案{{ else }}Profile{{ end }}</h2>
+                    <p>{{ if eq $.Site.Language.Lang "zh-cn" }}教育、项目、技能与经历{{ else }}Education, projects, skills and
+                        experience{{ end }}</p>
+                </a>
+                {{ end }}
+
+                {{ with $newsPage }}
+                <a class="portal-link" href="{{ .RelPermalink }}">
+                    <div class="portal-icon">
+                        {{ partial "helper/icon" "messages" }}
+                    </div>
+                    <h2>{{ if eq $.Site.Language.Lang "zh-cn" }}News{{ else }}News{{ end }}</h2>
+                    <p>{{ if eq $.Site.Language.Lang "zh-cn" }}近期动态与里程碑记录{{ else }}Recent milestones and timeline
+                        updates{{
+                        end }}</p>
+                </a>
+                {{ end }}
+            </div>
+        </section>
+
+        <section class="portal-home-mini portal-home-mini--latest">
+            <section class="portal-latest-layout">
+                {{ with first 1 ($projectPages.ByDate.Reverse) }}
+                {{ $item := index . 0 }}
+                {{ $itemSummary := $item.Params.summary | default $item.Params.description | strings.TrimSpace }}
+                {{ if eq $itemSummary "" }}
+                {{ $itemSummary = T "article.summaryPlaceholder" }}
+                {{ end }}
+                <a class="portal-latest-feature" href="{{ $item.RelPermalink }}">
+                    <h3>{{ if eq $.Site.Language.Lang "zh-cn" }}项目聚焦{{ else }}Project Spotlight{{ end }}</h3>
+                    <p class="portal-latest-title">{{ $item.Title }}</p>
+                    <p class="portal-latest-summary">{{ $itemSummary | truncate 120 }}</p>
+                    <time class="portal-latest-date">{{ $item.Date.Format "2006-01-02" }}</time>
+                </a>
+                {{ end }}
+
+                <div class="portal-latest-side">
+                    {{ with first 2 ($techPages.ByDate.Reverse) }}
+                    <div class="portal-latest-strip">
+                        <h3>{{ if eq $.Site.Language.Lang "zh-cn" }}技术更新{{ else }}Tech Updates{{ end }}</h3>
+                        <ul>
+                            {{ range . }}
+                            <li>
+                                <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+                                <time>{{ .Date.Format "01-02" }}</time>
+                            </li>
+                            {{ end }}
+                        </ul>
+                    </div>
+                    {{ end }}
+
+                    {{ with first 2 ($readingPages.ByDate.Reverse) }}
+                    <div class="portal-latest-strip">
+                        <h3>{{ if eq $.Site.Language.Lang "zh-cn" }}阅读摘记{{ else }}Reading Notes{{ end }}</h3>
+                        <ul>
+                            {{ range . }}
+                            <li>
+                                <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+                                <time>{{ .Date.Format "01-02" }}</time>
+                            </li>
+                            {{ end }}
+                        </ul>
+                    </div>
+                    {{ end }}
                 </div>
-                <h2>{{ if eq $.Site.Language.Lang "zh-cn" }}News{{ else }}News{{ end }}</h2>
-                <p>{{ if eq $.Site.Language.Lang "zh-cn" }}近期动态与里程碑记录{{ else }}Recent milestones and timeline updates{{
-                    end }}</p>
-            </a>
-            {{ end }}
-        </div>
+            </section>
+        </section>
     </section>
 </article>
 

@@ -66,17 +66,6 @@
     </footer>
     {{ end }}
 
-    {{ if $Page.IsTranslated }}
-    <footer class="article-translations">
-        {{ partial "helper/icon" "language" }}
-        <div>
-            {{ range $Page.Translations }}
-            <a href="{{ .RelPermalink }}" class="link">{{ .Language.LanguageName }}</a>
-            {{ end }}
-        </div>
-    </footer>
-    {{ end }}
-
     {{ if and $Page.Site.Params.Article.List.ShowTags ($Page.GetTerms "tags") $IsList }}
     <footer class="article-header-tags">
         {{ partial "helper/icon" "tag" }}

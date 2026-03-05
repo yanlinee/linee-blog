@@ -1,0 +1,82 @@
+{{ define "body-class" }}
+article-page
+{{ end }}
+
+{{ define "main" }}
+{{ partial "article/article.html" . }}
+
+{{- $projectType := .Params.projectType | default "open-source" -}}
+{{- $disclosure := .Params.disclosure | default "public" -}}
+{{- $status := .Params.status | default "active" -}}
+
+<section class="main-article project-meta-card">
+    <div class="project-meta-badges" role="list">
+        <span class="project-meta-badge" role="listitem">
+            {{ if eq .Site.Language.Lang "zh-cn" }}类型{{ else }}Type{{ end }}: {{ $projectType }}
+        </span>
+        <span class="project-meta-badge" role="listitem">
+            {{ if eq .Site.Language.Lang "zh-cn" }}公开级别{{ else }}Disclosure{{ end }}: {{ $disclosure }}
+        </span>
+        <span class="project-meta-badge" role="listitem">
+            {{ if eq .Site.Language.Lang "zh-cn" }}状态{{ else }}Status{{ end }}: {{ $status }}
+        </span>
+    </div>
+</section>
+
+{{- $projectKey := .Params.projectKey | default .File.ContentBaseName -}}
+{{- $related := where .Site.RegularPages "Params.project" $projectKey -}}
+{{- $related = where $related "RelPermalink" "ne" .RelPermalink -}}
+{{- $related = where $related "Params.disclosure" "ne" "internal" -}}
+{{- $related = $related.ByDate.Reverse -}}
+
+{{- $projectLogs := where $related "Params.entryType" "project-log" -}}
+{{- $generalNotes := where $related "Params.entryType" "ne" "project-log" -}}
+
+{{ if gt (len $projectLogs) 0 }}
+<section class="main-article project-related-card">
+    <header>
+        <h3 class="section-title">{{ if eq .Site.Language.Lang "zh-cn" }}项目日志{{ else }}Project Logs{{ end }}</h3>
+        <p class="section-description">
+            {{ if eq .Site.Language.Lang "zh-cn" }}与当前项目关联的文章与动态{{ else }}Related posts and updates for this project{{
+            end }}
+        </p>
+    </header>
+
+    <section class="article-list--compact">
+        {{ range first 12 $projectLogs }}
+        {{ partial "article-list/compact" . }}
+        {{ end }}
+    </section>
+</section>
+{{ end }}
+
+{{ if gt (len $generalNotes) 0 }}
+<section class="main-article project-related-card">
+    <header>
+        <h3 class="section-title">{{ if eq .Site.Language.Lang "zh-cn" }}通用笔记{{ else }}General Notes{{ end }}</h3>
+        <p class="section-description">
+            {{ if eq .Site.Language.Lang "zh-cn" }}与该项目相关但不属于迭代日志的文章{{ else }}Related posts that are not iteration
+            logs{{ end }}
+        </p>
+    </header>
+
+    <section class="article-list--compact">
+        {{ range first 12 $generalNotes }}
+        {{ partial "article-list/compact" . }}
+        {{ end }}
+    </section>
+</section>
+{{ end }}
+
+{{ if not (eq .Params.comments false) }}
+{{ partial "comments/include" . }}
+{{ end }}
+
+{{ partialCached "footer/footer" . }}
+{{ partialCached "article/components/photoswipe" . }}
+{{ partial "article/components/mermaid" . }}
+{{ end }}
+
+{{ define "right-sidebar" }}
+{{ partial "sidebar/right.html" (dict "Context" . "Scope" "page") }}
+{{ end }}

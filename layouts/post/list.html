@@ -1,0 +1,84 @@
+{{ define "main" }}
+<header>
+    <h3 class="section-title">{{ T "list.section" }}</h3>
+
+    <div class="section-card">
+        <div class="section-details">
+            <h3 class="section-count">{{ T "list.page" (len .Pages) }}</h3>
+            <h1 class="section-term">{{ .Title }}</h1>
+            {{ with .Params.description }}
+            <h2 class="section-description">{{ . }}</h2>
+            {{ end }}
+        </div>
+
+        {{- $image := partial "helper/image" (dict "Image" .Params.image "Resources" .Resources) -}}
+        {{ if $image }}
+        <div class="section-image">
+            <img src="{{ $image.Permalink }}" width="{{ $image.Width }}" height="{{ $image.Height }}" loading="lazy">
+        </div>
+        {{ end }}
+    </div>
+</header>
+
+{{- $allTags := .Site.Taxonomies.tags -}}
+{{ if $allTags }}
+<nav class="blog-tag-nav" aria-label="{{ if eq .Site.Language.Lang " zh-cn" }}技术博客标签导航{{ else }}Tech blog tag
+    navigation{{ end }}">
+    <a class="blog-tag-link" href="{{ .RelPermalink }}">{{ if eq .Site.Language.Lang "zh-cn" }}全部{{ else }}All{{ end
+        }}</a>
+    {{ range $name, $taxonomy := $allTags }}
+    {{- $postTagged := where $taxonomy.Pages "Section" "post" -}}
+    {{ if gt (len $postTagged) 0 }}
+    <a class="blog-tag-link" href="{{ (printf " tags/%s/" ($name | urlize)) | relLangURL }}">
+        {{ $name }}
+        <span>{{ len $postTagged }}</span>
+    </a>
+    {{ end }}
+    {{ end }}
+</nav>
+{{ end }}
+
+{{ $paginator := partial "helper/paginator.html" . }}
+{{ with $paginator }}
+<section class="blog-list-grid article-list">
+    {{ range .Pages }}
+    {{- $cover := partial "helper/image" (dict "Image" .Params.image "Resources" .Resources) -}}
+    {{- $summary := .Params.summary | default .Params.description | strings.TrimSpace -}}
+    {{- if eq $summary "" -}}
+    {{- $summary = T "article.summaryPlaceholder" -}}
+    {{- end -}}
+    <article class="blog-list-card{{ if $cover }} has-cover{{ else }} no-cover{{ end }}">
+        <a class="blog-list-link" href="{{ .RelPermalink }}">
+            {{ if $cover }}
+            <div class="blog-list-media" aria-hidden="true">
+                <img src="{{ $cover.Permalink }}" alt="{{ .Title }}" loading="lazy" width="{{ $cover.Width }}"
+                    height="{{ $cover.Height }}">
+            </div>
+            {{ end }}
+
+            <div class="blog-list-content">
+                <h2 class="blog-list-title">{{ .Title }}</h2>
+                <p class="blog-list-summary">{{ $summary | truncate 180 }}</p>
+                <footer class="blog-list-meta">
+                    <time datetime='{{ .Date.Format "2006-01-02T15:04:05Z07:00" }}'>
+                        {{ .Date | time.Format (or .Site.Params.dateFormat.published "2006-01-02") }}
+                    </time>
+                    {{ if gt .ReadingTime 0 }}
+                    <span>{{ T "article.readingTime" .ReadingTime }}</span>
+                    {{ end }}
+                </footer>
+            </div>
+        </a>
+    </article>
+    {{ end }}
+</section>
+{{ end }}
+
+{{- partial "pagination.html" . -}}
+
+{{ partialCached "footer/footer" . }}
+{{ end }}
+
+{{ define "right-sidebar" }}
+{{ partial "sidebar/right.html" (dict "Context" . "Scope" "homepage") }}
+{{ end }}

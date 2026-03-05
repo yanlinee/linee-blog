@@ -24,6 +24,21 @@
             <h2 class="site-description">{{ .Site.Params.sidebar.subtitle }}</h2>
         </div>
 
+        {{- $isPostPage := and .IsPage (eq .Section "post") -}}
+        {{ if $isPostPage }}
+        <div class="left-outline-block"
+            aria-label="{{ if eq .Site.Language.Lang `zh-cn` }}文章大纲{{ else }}Article outline{{ end }}">
+            <h3 class="left-outline-title">{{ if eq .Site.Language.Lang "zh-cn" }}大纲{{ else }}Outline{{ end }}</h3>
+            {{ if ge (len .TableOfContents) 100 }}
+            <nav class="left-outline-nav" id="ArticleOutlineNav">
+                {{ .TableOfContents }}
+            </nav>
+            {{ else }}
+            <p class="left-outline-empty">{{ if eq .Site.Language.Lang "zh-cn" }}当前文章暂无可跳转目录{{ else }}No jumpable
+                outline for this post yet{{ end }}</p>
+            {{ end }}
+        </div>
+        {{ else }}
         {{ with .Site.Params.leftProfile }}
         {{ if .enabled }}
         <div class="left-profile-block">
@@ -53,6 +68,7 @@
                 {{ end }}
             </div>
         </div>
+        {{ end }}
         {{ end }}
         {{ end }}
     </header>
