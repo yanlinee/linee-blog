@@ -27,26 +27,38 @@
             {{ if hugo.IsMultilingual }}
             <div class="top-nav-control">
                 {{ partial "helper/icon" "language" }}
-                <select class="lang-select" name="language" title="language" onchange="window.location.href = this.selectedOptions[0].value">
+                <select class="lang-select" name="language" title="language"
+                    onchange="window.location.href = this.selectedOptions[0].value">
                     {{ range .Site.Home.AllTranslations }}
+                    {{ $flag := "🏳️" }}
+                    {{ if eq .Language.Lang "zh-cn" }}
+                    {{ $flag = "🇨🇳" }}
+                    {{ else if eq .Language.Lang "en" }}
+                    {{ $flag = "🇬🇧" }}
+                    {{ end }}
                     {{ $target := . }}
                     {{ range $.AllTranslations }}
                     {{ if eq .Language.Lang $target.Language.Lang }}
                     {{ $target = . }}
                     {{ end }}
                     {{ end }}
-                    <option value="{{ $target.RelPermalink }}" {{ if eq $target.Language.Lang $currentLanguageCode }}selected{{ end }}>{{ .Language.LanguageName }}</option>
+                    <option value="{{ $target.RelPermalink }}" {{ if eq $target.Language.Lang $currentLanguageCode
+                        }}selected{{ end }} title="{{ .Language.LanguageName }}">{{ $flag }}</option>
                     {{ end }}
                 </select>
             </div>
             {{ end }}
 
             {{ if .Site.Params.colorScheme.toggle }}
-            <button class="top-nav-control theme-toggle" id="dark-mode-toggle" title="{{ if eq .Site.Language.Lang "zh-cn" }}切换深色/浅色模式{{ else }}Toggle Light/Dark Mode{{ end }}" aria-label="{{ T "darkMode" }}">
+            <button class="top-nav-control theme-toggle" id="dark-mode-toggle"
+                title='{{ if eq .Site.Language.Lang "zh-cn" }}切换深色/浅色模式{{ else }}Toggle Light/Dark Mode{{ end }}'
+                aria-label='{{ T "darkMode" }}'>
                 {{ partial "helper/icon" "toggle-left" }}
                 {{ partial "helper/icon" "toggle-right" }}
-                <span class="theme-label-light">{{ T "lightMode" }}</span>
-                <span class="theme-label-dark">{{ T "darkMode" }}</span>
+                <span class="theme-label theme-label-light">{{ if eq .Site.Language.Lang "zh-cn" }}浅色{{ else }}Light{{
+                    end }}</span>
+                <span class="theme-label theme-label-dark">{{ if eq .Site.Language.Lang "zh-cn" }}深色{{ else }}Dark{{ end
+                    }}</span>
             </button>
             {{ end }}
         </div>

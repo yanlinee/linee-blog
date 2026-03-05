@@ -1,0 +1,220 @@
+<script>
+    (() => {
+        const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+
+        // Subtle mouse-reactive floating cards
+        if (!reducedMotion && finePointer) {
+            const cards = document.querySelectorAll('.section-card, .portal-home-card, .news-timeline-card, .article-list article, .left-profile-block');
+
+            const animateCard = (card, state) => {
+                state.current.x += (state.target.x - state.current.x) * 0.14;
+                state.current.y += (state.target.y - state.current.y) * 0.14;
+                state.current.rx += (state.target.rx - state.current.rx) * 0.14;
+                state.current.ry += (state.target.ry - state.current.ry) * 0.14;
+                state.current.lift += (state.target.lift - state.current.lift) * 0.12;
+                state.current.z += (state.target.z - state.current.z) * 0.12;
+
+                card.style.setProperty('--float-x', `${state.current.x.toFixed(2)}px`);
+                card.style.setProperty('--float-y', `${state.current.y.toFixed(2)}px`);
+                card.style.setProperty('--float-rx', `${state.current.rx.toFixed(2)}deg`);
+                card.style.setProperty('--float-ry', `${state.current.ry.toFixed(2)}deg`);
+                card.style.setProperty('--float-lift', `${state.current.lift.toFixed(2)}px`);
+                card.style.setProperty('--float-z', `${state.current.z.toFixed(2)}px`);
+
+                const idle =
+                    Math.abs(state.target.x - state.current.x) < 0.06 &&
+                    Math.abs(state.target.y - state.current.y) < 0.06 &&
+                    Math.abs(state.target.rx - state.current.rx) < 0.06 &&
+                    Math.abs(state.target.ry - state.current.ry) < 0.06 &&
+                    Math.abs(state.target.lift - state.current.lift) < 0.06 &&
+                    Math.abs(state.target.z - state.current.z) < 0.06;
+
+                if (idle && !state.hovering) {
+                    card.classList.remove('is-floating');
+                    state.raf = 0;
+                    return;
+                }
+
+                state.raf = requestAnimationFrame(() => animateCard(card, state));
+            };
+
+            const ensureAnimation = (card, state) => {
+                if (state.raf) {
+                    return;
+                }
+                state.raf = requestAnimationFrame(() => animateCard(card, state));
+            };
+
+            cards.forEach((card) => {
+                card.classList.add('ios-float-card');
+
+                const state = {
+                    hovering: false,
+                    raf: 0,
+                    current: { x: 0, y: 0, rx: 0, ry: 0, lift: 0, z: 0 },
+                    target: { x: 0, y: 0, rx: 0, ry: 0, lift: 0, z: 0 }
+                };
+
+                card.addEventListener('pointerenter', () => {
+                    state.hovering = true;
+                    card.classList.add('is-floating');
+                    state.target.lift = 9;
+                    state.target.z = 14;
+                    ensureAnimation(card, state);
+                });
+
+                card.addEventListener('pointermove', (event) => {
+                    const rect = card.getBoundingClientRect();
+                    const x = (event.clientX - rect.left) / rect.width;
+                    const y = (event.clientY - rect.top) / rect.height;
+
+                    state.target.x = (x - 0.5) * 10;
+                    state.target.y = (y - 0.5) * 8;
+                    state.target.rx = (0.5 - y) * 5.2;
+                    state.target.ry = (x - 0.5) * 5.2;
+                    state.target.lift = 9;
+                    state.target.z = 14;
+                    ensureAnimation(card, state);
+                });
+
+                card.addEventListener('pointerleave', () => {
+                    state.hovering = false;
+                    state.target.x = 0;
+                    state.target.y = 0;
+                    state.target.rx = 0;
+                    state.target.ry = 0;
+                    state.target.lift = 0;
+                    state.target.z = 0;
+                    ensureAnimation(card, state);
+                });
+            });
+        }
+
+        // Floating network background reacting to pointer movement
+        if (reducedMotion) {
+            return;
+        }
+
+        const canvas = document.createElement('canvas');
+        canvas.className = 'bg-network-canvas';
+        document.body.prepend(canvas);
+
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+            return;
+        }
+
+        const dpr = () => Math.min(window.devicePixelRatio || 1, 2);
+        let width = 0;
+        let height = 0;
+        let points = [];
+        let rafId = 0;
+
+        const pointer = {
+            x: window.innerWidth / 2,
+            y: window.innerHeight / 2
+        };
+
+        const createPoints = () => {
+            const count = window.innerWidth > 1200 ? 72 : (window.innerWidth > 800 ? 54 : 38);
+            points = Array.from({ length: count }, () => ({
+                x: Math.random() * width,
+                y: Math.random() * height,
+                vx: (Math.random() - 0.5) * 0.35,
+                vy: (Math.random() - 0.5) * 0.35,
+                depth: 0.3 + Math.random() * 0.8
+            }));
+        };
+
+        const resize = () => {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = Math.floor(width * dpr());
+            canvas.height = Math.floor(height * dpr());
+            canvas.style.width = `${width}px`;
+            canvas.style.height = `${height}px`;
+            ctx.setTransform(dpr(), 0, 0, dpr(), 0, 0);
+            createPoints();
+        };
+
+        const lineColor = () => {
+            const separator = getComputedStyle(document.documentElement).getPropertyValue('--ios-separator').trim();
+            return separator || 'rgba(120, 120, 128, 0.32)';
+        };
+
+        const draw = () => {
+            ctx.clearRect(0, 0, width, height);
+
+            const offsetX = (pointer.x - width / 2) * 0.035;
+            const offsetY = (pointer.y - height / 2) * 0.035;
+            const baseColor = lineColor();
+
+            for (const p of points) {
+                p.x += p.vx;
+                p.y += p.vy;
+
+                if (p.x < -20 || p.x > width + 20) p.vx *= -1;
+                if (p.y < -20 || p.y > height + 20) p.vy *= -1;
+            }
+
+            for (let i = 0; i < points.length; i++) {
+                const p1 = points[i];
+                const x1 = p1.x + offsetX * p1.depth;
+                const y1 = p1.y + offsetY * p1.depth;
+
+                for (let j = i + 1; j < points.length; j++) {
+                    const p2 = points[j];
+                    const x2 = p2.x + offsetX * p2.depth;
+                    const y2 = p2.y + offsetY * p2.depth;
+
+                    const dx = x1 - x2;
+                    const dy = y1 - y2;
+                    const dist = Math.hypot(dx, dy);
+
+                    if (dist < 170) {
+                        const alpha = (1 - dist / 170) * 0.55;
+                        ctx.strokeStyle = baseColor.replace(/rgba?\(([^)]+)\)/, (m, inner) => {
+                            const rgb = inner.split(',').slice(0, 3).join(',');
+                            return `rgba(${rgb}, ${alpha.toFixed(3)})`;
+                        });
+                        ctx.lineWidth = 1.1;
+                        ctx.beginPath();
+                        ctx.moveTo(x1, y1);
+                        ctx.lineTo(x2, y2);
+                        ctx.stroke();
+                    }
+                }
+
+                ctx.fillStyle = 'rgba(120, 120, 128, 0.5)';
+                ctx.beginPath();
+                ctx.arc(x1, y1, 1.8, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            rafId = requestAnimationFrame(draw);
+        };
+
+        window.addEventListener('resize', resize, { passive: true });
+        window.addEventListener('pointermove', (event) => {
+            pointer.x = event.clientX;
+            pointer.y = event.clientY;
+        }, { passive: true });
+
+        window.addEventListener('pointerleave', () => {
+            pointer.x = width / 2;
+            pointer.y = height / 2;
+        }, { passive: true });
+
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                cancelAnimationFrame(rafId);
+            } else {
+                rafId = requestAnimationFrame(draw);
+            }
+        });
+
+        resize();
+        rafId = requestAnimationFrame(draw);
+    })();
+</script>

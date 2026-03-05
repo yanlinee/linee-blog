@@ -2,9 +2,8 @@
 # 覆盖主题的默认翻译
 
 toggleMenu = "切换菜单"
-darkMode   = "外观"
-lightMode   = "浅色"
-darkModeLabel = "深色"
+darkMode   = "深色"
+lightMode  = "浅色"
 
 [list]
     page       = "{{ .Count }} 个页面"
