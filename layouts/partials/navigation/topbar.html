@@ -10,8 +10,9 @@
 
         <ol class="top-nav-menu">
             {{ range .Site.Menus.main }}
-            {{ $active := or (eq $currentPage.RelPermalink .URL) (or ($currentPage.HasMenuCurrent "main" .)
-            ($currentPage.IsMenuCurrent "main" .)) }}
+            {{- $isSection := and (ne .URL $currentPage.Site.Home.RelPermalink) (hasPrefix $currentPage.RelPermalink .URL) -}}
+            {{- $active := or (eq $currentPage.RelPermalink .URL) (or $isSection (or ($currentPage.HasMenuCurrent "main" .)
+            ($currentPage.IsMenuCurrent "main" .))) -}}
             <li>
                 <a class="top-nav-link {{ if $active }}is-active{{ end }}" href="{{ .URL }}">{{ .Name }}</a>
             </li>
@@ -22,27 +23,41 @@
         <div class="top-nav-right">
             {{- $currentLanguageCode := .Language.Lang -}}
             {{ if hugo.IsMultilingual }}
-            <div class="top-nav-control">
-                {{ partial "helper/icon" "language" }}
-                <select class="lang-select" name="language" title="language"
-                    onchange="window.location.href = this.selectedOptions[0].value">
+            <div class="language-switcher" data-language-switcher>
+                <button class="top-nav-control language-switcher-trigger" type="button"
+                    aria-expanded="false" aria-controls="language-switcher-menu"
+                    aria-label='{{ if eq .Site.Language.Lang "zh-cn" }}切换语言{{ else }}Switch language{{ end }}'>
+                    <span class="language-mark" aria-hidden="true">{{ partial "helper/language-flag" .Language.Lang }}</span>
+                    <svg class="language-chevron" aria-hidden="true" viewBox="0 0 16 16" width="16" height="16">
+                        <path d="m4 6 4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.6"
+                            stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </button>
+
+                <div class="language-switcher-menu" id="language-switcher-menu" role="menu"
+                    aria-label='{{ if eq .Site.Language.Lang "zh-cn" }}选择语言{{ else }}Choose a language{{ end }}' hidden>
+                    <p class="language-switcher-title">{{ if eq .Site.Language.Lang "zh-cn" }}语言{{ else }}Language{{ end }}</p>
                     {{ range .Site.Home.AllTranslations }}
-                    {{ $flag := "🏳️" }}
-                    {{ if eq .Language.Lang "zh-cn" }}
-                    {{ $flag = "🇨🇳" }}
-                    {{ else if eq .Language.Lang "en" }}
-                    {{ $flag = "🇬🇧" }}
-                    {{ end }}
                     {{ $target := . }}
                     {{ range $.AllTranslations }}
                     {{ if eq .Language.Lang $target.Language.Lang }}
                     {{ $target = . }}
                     {{ end }}
                     {{ end }}
-                    <option value="{{ $target.RelPermalink }}" {{ if eq $target.Language.Lang $currentLanguageCode
-                        }}selected{{ end }} title="{{ .Language.LanguageName }}">{{ $flag }}</option>
+                    {{- $isCurrentLanguage := eq $target.Language.Lang $currentLanguageCode -}}
+                    <a class="language-switcher-option{{ if $isCurrentLanguage }} is-current{{ end }}"
+                        href="{{ $target.RelPermalink }}" role="menuitemradio"
+                        aria-checked="{{ if $isCurrentLanguage }}true{{ else }}false{{ end }}"
+                        lang="{{ .Language.Locale }}" hreflang="{{ .Language.Lang }}">
+                        <span class="language-option-mark" aria-hidden="true">{{ partial "helper/language-flag" .Language.Lang }}</span>
+                        <span class="language-option-copy">
+                            <strong>{{ .Language.Label }}</strong>
+                            <small>{{ if eq .Language.Lang "zh-cn" }}Chinese{{ else if eq .Language.Lang "en" }}English{{ else }}{{ .Language.Lang }}{{ end }}</small>
+                        </span>
+                        <span class="language-option-check" aria-hidden="true">✓</span>
+                    </a>
                     {{ end }}
-                </select>
+                </div>
             </div>
             {{ end }}
 
@@ -75,8 +90,9 @@
         </div>
         <ol class="top-nav-drawer-menu">
             {{ range .Site.Menus.main }}
-            {{ $active := or (eq $currentPage.RelPermalink .URL) (or ($currentPage.HasMenuCurrent "main" .)
-            ($currentPage.IsMenuCurrent "main" .)) }}
+            {{- $isSection := and (ne .URL $currentPage.Site.Home.RelPermalink) (hasPrefix $currentPage.RelPermalink .URL) -}}
+            {{- $active := or (eq $currentPage.RelPermalink .URL) (or $isSection (or ($currentPage.HasMenuCurrent "main" .)
+            ($currentPage.IsMenuCurrent "main" .))) -}}
             <li>
                 <a class="top-nav-drawer-link {{ if $active }}is-active{{ end }}" href="{{ .URL }}">{{ .Name }}</a>
             </li>
@@ -86,10 +102,9 @@
         <div class="top-nav-drawer-controls">
             {{- $currentLanguageCode := .Language.Lang -}}
             {{ if hugo.IsMultilingual }}
-            <label class="top-nav-drawer-control" for="top-nav-drawer-language">
-                <span>{{ if eq .Site.Language.Lang "zh-cn" }}语言{{ else }}Language{{ end }}</span>
-                <select id="top-nav-drawer-language" class="top-nav-drawer-language"
-                    onchange="window.location.href = this.selectedOptions[0].value">
+            <div class="top-nav-drawer-language-panel">
+                <p>{{ if eq .Site.Language.Lang "zh-cn" }}语言{{ else }}Language{{ end }}</p>
+                <div class="top-nav-drawer-language-options">
                     {{ range .Site.Home.AllTranslations }}
                     {{ $target := . }}
                     {{ range $.AllTranslations }}
@@ -97,11 +112,16 @@
                     {{ $target = . }}
                     {{ end }}
                     {{ end }}
-                    <option value="{{ $target.RelPermalink }}" {{ if eq $target.Language.Lang $currentLanguageCode
-                        }}selected{{ end }}>{{ .Language.LanguageName }}</option>
+                    {{- $isCurrentLanguage := eq $target.Language.Lang $currentLanguageCode -}}
+                    <a class="top-nav-drawer-language-option{{ if $isCurrentLanguage }} is-current{{ end }}"
+                        href="{{ $target.RelPermalink }}" lang="{{ .Language.Locale }}" hreflang="{{ .Language.Lang }}">
+                        <span class="language-drawer-mark" aria-hidden="true">{{ partial "helper/language-flag" .Language.Lang }}</span>
+                        <strong>{{ .Language.Label }}</strong>
+                        {{ if $isCurrentLanguage }}<span class="top-nav-drawer-language-check" aria-hidden="true">✓</span>{{ end }}
+                    </a>
                     {{ end }}
-                </select>
-            </label>
+                </div>
+            </div>
             {{ end }}
 
             {{ if .Site.Params.colorScheme.toggle }}

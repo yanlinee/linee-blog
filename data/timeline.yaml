@@ -1,4 +1,22 @@
 # 项目状态时间线
+- date: "2026-09"
+  title:
+    zh: "计算机科学硕士"
+    en: "MSc Computer Science"
+  description:
+    zh: "在阿姆斯特丹大学与阿姆斯特丹自由大学开始硕士阶段，将方向转向高性能计算与可扩展系统"
+    en: "Started the MSc in Computer Science at UvA and VU, shifting focus toward HPC and scalable systems"
+  status: "in-progress"
+
+- date: "2026-06"
+  title:
+    zh: "本科毕业设计"
+    en: "Undergraduate Thesis"
+  description:
+    zh: "完成本科毕业设计，正在整理为可公开的双语项目页"
+    en: "Completed the undergraduate thesis and began preparing a public bilingual project page"
+  status: "completed"
+
 - date: "2025-03"
   title: 
     zh: "博客重构"
@@ -26,7 +44,7 @@
     en: "Completed CIFAR-10 classification experiments comparing ViT/VGG/ResNet"
   status: "completed"
   
-- date: "2024-12"
+- date: "2025-07"
   title:
     zh: "金融科技实习"
     en: "FinTech Internship"

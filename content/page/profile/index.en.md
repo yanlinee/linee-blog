@@ -1,19 +1,27 @@
 +++
 title = "Profile"
-description = "Education, internship, projects and skills"
+description = "Education, research interests, internship, projects, and skills"
+lastmod = 2026-09-18T18:00:00+02:00
 +++
 
 ## Education
 
-- B.Eng. in Computer Science and Technology, Xi'an Jiaotong University (09/2022 - 07/2026)
-- B.Econ. in Financial Technology (Minor), Xi'an Jiaotong University (05/2024 - 05/2026)
+- **University of Amsterdam and Vrije Universiteit Amsterdam**, MSc in Computer Science (09/2026 - Present)
+- **Xi'an Jiaotong University**, B.Eng. in Computer Science and Technology (09/2022 - 07/2026)
+- **Xi'an Jiaotong University**, B.Econ. in Financial Technology (Minor, 05/2024 - 05/2026)
+
+## Current Focus
+
+- High-performance computing (HPC)
+- Parallel computing and scalable systems
+- Systems performance analysis and engineering optimization
 
 ## Internship
 
-- China Construction Bank, Shaanxi Branch, Fintech Department (07/2025 - 08/2025)
-- System Application Development Intern
-- Built a software compliance audit tool, improving review efficiency by about 80%
-- Contributed to an ML-based malicious IP blocking system for faster high-risk response
+- **China Construction Bank, Shaanxi Branch, Fintech Department** (07/2025 - 08/2025)
+  - System Application Development Intern
+  - Built a software compliance audit tool, improving review efficiency by about 80%
+  - Contributed to an ML-based malicious IP blocking system for faster high-risk response
 
 ## Key Projects
 
@@ -21,6 +29,11 @@ description = "Education, internship, projects and skills"
 - Optimization: TSP-225 benchmarking with ACO, GA, and SA
 - Computer Vision: CIFAR-10 experiments with improved ViT, VGG16, and ResNet18
 - Backend Engineering: Flask + Amap + LangChain route planning and itinerary generation
+- Undergraduate Thesis: being prepared as a standalone project page covering the problem, method, experiments, and outcomes
+
+## Project Timeline
+
+{{< timeline >}}
 
 ## Skills
 
@@ -32,5 +45,5 @@ description = "Education, internship, projects and skills"
 
 ## Contact
 
-- Email: `embersdlc@gmail.com`
-- GitHub: `https://github.com/yourname`
+- Email: [embersdlc@gmail.com](mailto:embersdlc@gmail.com)
+- GitHub: [github.com/yanlinee](https://github.com/yanlinee)

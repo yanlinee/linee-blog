@@ -1,0 +1,58 @@
+{{ define "body-class" }}projects-page{{ end }}
+
+{{ define "main" }}
+{{- $projects := .Pages.ByDate.Reverse -}}
+<header class="projects-hero-card">
+    <p class="projects-hero-kicker">{{ if eq .Site.Language.Lang "zh-cn" }}SELECTED WORK{{ else }}SELECTED WORK{{ end }}</p>
+    <h1>{{ .Title }}</h1>
+    <p>{{ .Params.description }}</p>
+    <div class="projects-hero-count">
+        <strong>{{ len $projects }}</strong>
+        <span>{{ if eq .Site.Language.Lang "zh-cn" }}个公开项目{{ else }}public project{{ if ne (len $projects) 1 }}s{{ end }}{{ end }}</span>
+    </div>
+</header>
+
+{{ with .Content }}
+<div class="projects-intro">{{ . }}</div>
+{{ end }}
+
+<section class="projects-grid" aria-label="{{ if eq .Site.Language.Lang "zh-cn" }}项目列表{{ else }}Project list{{ end }}">
+    {{ range $index, $project := $projects }}
+    <article class="project-card{{ if .Params.featured }} project-card--featured{{ end }}">
+        <a href="{{ .RelPermalink }}">
+            <div class="project-card-topline">
+                <span class="project-card-index">{{ printf "%02d" (add $index 1) }}</span>
+                <span class="project-card-status project-card-status--{{ .Params.status | default `active` }}">
+                    {{- if eq (.Params.status | default "active") "active" -}}
+                    {{ if eq .Site.Language.Lang "zh-cn" }}进行中{{ else }}Active{{ end }}
+                    {{- else if eq .Params.status "completed" -}}
+                    {{ if eq .Site.Language.Lang "zh-cn" }}已完成{{ else }}Completed{{ end }}
+                    {{- else -}}
+                    {{ .Params.status }}
+                    {{- end -}}
+                </span>
+            </div>
+            <div class="project-card-main">
+                <p class="project-card-type">{{ .Params.projectType | default "project" }}</p>
+                <h2>{{ .Title }}</h2>
+                <p>{{ .Params.description }}</p>
+            </div>
+            <footer class="project-card-footer">
+                <div class="project-card-tech">
+                    {{ range first 4 (.Params.tech | default (slice)) }}<span>{{ . }}</span>{{ end }}
+                </div>
+                <span class="project-card-arrow" aria-hidden="true">↗</span>
+            </footer>
+        </a>
+    </article>
+    {{ else }}
+    <p class="projects-empty">{{ if eq .Site.Language.Lang "zh-cn" }}项目正在整理中。{{ else }}Projects are being prepared.{{ end }}</p>
+    {{ end }}
+</section>
+
+{{ partialCached "footer/footer" . }}
+{{ end }}
+
+{{ define "right-sidebar" }}
+{{ partial "sidebar/right.html" (dict "Context" . "Scope" "homepage") }}
+{{ end }}

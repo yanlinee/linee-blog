@@ -45,7 +45,8 @@
             <div class="left-profile-photo-wrap">
                 {{ with .photo }}
                 <img class="left-profile-photo" src="{{ . | relURL }}"
-                    alt="{{ default `Profile photo` $.Site.Params.leftProfile.photoAlt }}">
+                    alt="{{ default `Profile photo` $.Site.Params.leftProfile.photoAlt }}" width="240" height="240"
+                    decoding="async">
                 {{ else }}
                 <div class="left-profile-photo left-profile-photo--placeholder">Photo</div>
                 {{ end }}

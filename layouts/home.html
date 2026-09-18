@@ -14,22 +14,58 @@ home-page
 
 <article class="main-article portal-home-card portal-home-shell">
     <section class="portal-home-stack">
-        <section class="portal-home-mini portal-home-mini--section">
-            <h3 class="section-title">{{ T "list.section" }}</h3>
-            <div class="section-details">
-                <h3 class="section-count">Portal</h3>
-                <h1 class="section-term">{{ .Title }}</h1>
-                {{ with .Params.description }}
-                <h2 class="section-description">{{ . }}</h2>
+        <section class="portal-hero">
+            <div class="portal-hero-copy">
+                <p class="portal-eyebrow">
+                    <span class="portal-status-dot" aria-hidden="true"></span>
+                    {{ if eq .Site.Language.Lang "zh-cn" }}阿姆斯特丹 · 计算机科学硕士{{ else }}Amsterdam · MSc Computer Science{{ end }}
+                </p>
+                {{ with .Content }}
+                <div class="portal-hero-lead">{{ . }}</div>
                 {{ end }}
+                <div class="portal-focus-tags" aria-label="{{ if eq .Site.Language.Lang "zh-cn" }}当前方向{{ else }}Current focus{{ end }}">
+                    <span>HPC</span>
+                    <span>{{ if eq .Site.Language.Lang "zh-cn" }}并行计算{{ else }}Parallel Computing{{ end }}</span>
+                    <span>{{ if eq .Site.Language.Lang "zh-cn" }}性能工程{{ else }}Performance Engineering{{ end }}</span>
+                </div>
+                <div class="portal-hero-actions">
+                    {{ with $projectsPage }}
+                    <a class="portal-action portal-action--primary" href="{{ .RelPermalink }}">
+                        {{ if eq $.Site.Language.Lang "zh-cn" }}查看项目{{ else }}Explore projects{{ end }}
+                        <span aria-hidden="true">↗</span>
+                    </a>
+                    {{ end }}
+                    {{ with $profilePage }}
+                    <a class="portal-action" href="{{ .RelPermalink }}">
+                        {{ if eq $.Site.Language.Lang "zh-cn" }}了解我{{ else }}About me{{ end }}
+                    </a>
+                    {{ end }}
+                </div>
             </div>
-        </section>
 
-        {{ with .Content }}
-        <section class="portal-home-mini portal-home-mini--intro">
-            <div class="portal-intro">{{ . }}</div>
+            <aside class="portal-compute-card" aria-label="{{ if eq .Site.Language.Lang "zh-cn" }}研究方向摘要{{ else }}Research focus summary{{ end }}">
+                <div class="portal-compute-topline">
+                    <span>{{ if eq .Site.Language.Lang "zh-cn" }}当前方向{{ else }}Current focus{{ end }}</span>
+                    <span class="portal-compute-live">LIVE</span>
+                </div>
+                <strong>HPC</strong>
+                <p>{{ if eq .Site.Language.Lang "zh-cn" }}High-Performance Computing{{ else }}High-Performance Computing{{ end }}</p>
+                <div class="portal-compute-grid" aria-hidden="true">
+                    <span>PAR</span>
+                    <span>SYS</span>
+                    <span>PERF</span>
+                </div>
+                <div class="portal-compute-footer">
+                    {{ if eq .Site.Language.Lang "zh-cn" }}
+                    <span>阿姆斯特丹大学</span>
+                    <span>阿姆斯特丹自由大学</span>
+                    {{ else }}
+                    <span>UvA</span>
+                    <span>VU</span>
+                    {{ end }}
+                </div>
+            </aside>
         </section>
-        {{ end }}
 
         <section class="portal-home-mini portal-home-mini--links">
             <h3 class="portal-mini-title">{{ if eq $.Site.Language.Lang "zh-cn" }}快速导航{{ else }}Quick Navigation{{ end
@@ -41,7 +77,7 @@ home-page
                         {{ partial "helper/icon" "categories" }}
                     </div>
                     <h2>{{ if eq $.Site.Language.Lang "zh-cn" }}项目{{ else }}Projects{{ end }}</h2>
-                    <p>{{ if eq $.Site.Language.Lang "zh-cn" }}按项目查看完整背景、过程与产出{{ else }}Project-based stories with
+                    <p>{{ if eq $.Site.Language.Lang "zh-cn" }}研究、工程与本科毕设的完整过程{{ else }}Research and engineering stories with
                         context,
                         process and outcomes{{ end }}</p>
                 </a>

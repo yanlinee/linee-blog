@@ -8,6 +8,17 @@
                 enableCardFloat: false,
                 enableNetwork: false
             },
+            ambient: {
+                enableCardFloat: false,
+                enableNetwork: true,
+                pointCountScale: 1.15,
+                offsetFactor: 0.018,
+                linkDistance: 170,
+                linkAlpha: 0.52,
+                lineWidth: 0.9,
+                pointAlpha: 0.62,
+                pointRadius: 1.2
+            },
             subtle: {
                 enableCardFloat: true,
                 enableNetwork: true,
@@ -110,6 +121,93 @@
                     setOpen(false);
                 }
             }, { passive: true });
+        })();
+
+        // Custom language popover (keeps the control consistent across OSes)
+        (() => {
+            const switchers = Array.from(document.querySelectorAll('[data-language-switcher]'));
+            if (!switchers.length) return;
+
+            switchers.forEach((switcher) => {
+                const trigger = switcher.querySelector('.language-switcher-trigger');
+                const menu = switcher.querySelector('.language-switcher-menu');
+                const options = Array.from(switcher.querySelectorAll('.language-switcher-option'));
+                if (!trigger || !menu) return;
+
+                let closeTimer = 0;
+
+                const setOpen = (open, focusFirst = false) => {
+                    window.clearTimeout(closeTimer);
+                    trigger.setAttribute('aria-expanded', open ? 'true' : 'false');
+
+                    if (open) {
+                        menu.hidden = false;
+                        requestAnimationFrame(() => {
+                            switcher.classList.add('is-open');
+                            if (focusFirst && options.length) options[0].focus();
+                        });
+                        return;
+                    }
+
+                    switcher.classList.remove('is-open');
+                    closeTimer = window.setTimeout(() => {
+                        if (!switcher.classList.contains('is-open')) menu.hidden = true;
+                    }, 170);
+                };
+
+                trigger.addEventListener('click', (event) => {
+                    event.stopPropagation();
+                    setOpen(!switcher.classList.contains('is-open'));
+                });
+
+                trigger.addEventListener('keydown', (event) => {
+                    if (event.key === 'ArrowDown') {
+                        event.preventDefault();
+                        setOpen(true, true);
+                    }
+                });
+
+                menu.addEventListener('keydown', (event) => {
+                    const currentIndex = options.indexOf(document.activeElement);
+
+                    if (event.key === 'Escape') {
+                        event.preventDefault();
+                        setOpen(false);
+                        trigger.focus();
+                    } else if (event.key === 'ArrowDown' && options.length) {
+                        event.preventDefault();
+                        options[(currentIndex + 1 + options.length) % options.length].focus();
+                    } else if (event.key === 'ArrowUp' && options.length) {
+                        event.preventDefault();
+                        options[(currentIndex - 1 + options.length) % options.length].focus();
+                    } else if (event.key === 'Home' && options.length) {
+                        event.preventDefault();
+                        options[0].focus();
+                    } else if (event.key === 'End' && options.length) {
+                        event.preventDefault();
+                        options[options.length - 1].focus();
+                    }
+                });
+
+                document.addEventListener('pointerdown', (event) => {
+                    if (!switcher.contains(event.target)) setOpen(false);
+                });
+
+                switcher.addEventListener('focusout', (event) => {
+                    if (!switcher.contains(event.relatedTarget)) setOpen(false);
+                });
+
+                window.addEventListener('keydown', (event) => {
+                    if (event.key === 'Escape' && switcher.classList.contains('is-open')) {
+                        setOpen(false);
+                        trigger.focus();
+                    }
+                });
+
+                window.addEventListener('resize', () => {
+                    if (window.innerWidth <= 1023) setOpen(false);
+                }, { passive: true });
+            });
         })();
 
         // Left outline scrollspy: highlight current section and keep it visible
@@ -350,17 +448,16 @@
             createPoints();
         };
 
-        const lineColor = () => {
-            const separator = getComputedStyle(document.documentElement).getPropertyValue('--ios-separator').trim();
-            return separator || 'rgba(120, 120, 128, 0.32)';
-        };
+        const networkColor = (property, fallback) =>
+            getComputedStyle(document.documentElement).getPropertyValue(property).trim() || fallback;
 
         const draw = () => {
             ctx.clearRect(0, 0, width, height);
 
             const offsetX = (pointer.x - width / 2) * profile.offsetFactor;
             const offsetY = (pointer.y - height / 2) * profile.offsetFactor;
-            const baseColor = lineColor();
+            const lineRgb = networkColor('--network-line-rgb', '15, 108, 255');
+            const pointRgb = networkColor('--network-point-rgb', '0, 122, 255');
 
             for (const p of points) {
                 p.x += p.vx;
@@ -386,10 +483,7 @@
 
                     if (dist < profile.linkDistance) {
                         const alpha = (1 - dist / profile.linkDistance) * profile.linkAlpha;
-                        ctx.strokeStyle = baseColor.replace(/rgba?\(([^)]+)\)/, (m, inner) => {
-                            const rgb = inner.split(',').slice(0, 3).join(',');
-                            return `rgba(${rgb}, ${alpha.toFixed(3)})`;
-                        });
+                        ctx.strokeStyle = `rgba(${lineRgb}, ${alpha.toFixed(3)})`;
                         ctx.lineWidth = profile.lineWidth;
                         ctx.beginPath();
                         ctx.moveTo(x1, y1);
@@ -398,7 +492,7 @@
                     }
                 }
 
-                ctx.fillStyle = `rgba(120, 120, 128, ${profile.pointAlpha})`;
+                ctx.fillStyle = `rgba(${pointRgb}, ${profile.pointAlpha})`;
                 ctx.beginPath();
                 ctx.arc(x1, y1, profile.pointRadius, 0, Math.PI * 2);
                 ctx.fill();

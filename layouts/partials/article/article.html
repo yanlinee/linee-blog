@@ -1,4 +1,5 @@
-<article class="{{ if .Params.image }}has-image {{ end }}main-article">
+{{- $isProfile := and (eq .Section "page") (hasSuffix .RelPermalink "/profile/") -}}
+<article class="{{ if .Params.image }}has-image {{ end }}main-article{{ if $isProfile }} profile-content-card{{ end }}">
     {{ partial "article/components/header" (dict "Page" . "IsList" false) }}
 
     {{ if .Scratch.Get "TOCEnabled" }}

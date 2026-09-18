@@ -5,6 +5,10 @@ date = 2026-03-05T09:00:00+08:00
 draft = false
 projectKey = "linee-blog"
 status = "active"
+projectType = "open-source"
+disclosure = "public"
+tech = ["Hugo", "SCSS", "JavaScript"]
+featured = true
 translationKey = "project-linee-blog"
 +++
 

@@ -1,5 +1,5 @@
 baseurl = 'https://yanlinee.github.io/linee-blog'
-languageCode = 'zh-cn'
+locale = 'zh-CN'
 theme = 'stack'
 title = '王棪 / Yan Wang'
 
@@ -10,8 +10,8 @@ defaultContentLanguage = 'zh-cn'
 
 [languages]
 	[languages.zh-cn]
-		languageName = '中文'
-		languageCode = 'zh-CN'
+		label = '中文'
+		locale = 'zh-CN'
 		weight = 1
 		title = '王棪 / Yan Wang'
 
@@ -46,8 +46,8 @@ defaultContentLanguage = 'zh-cn'
 			weight = 40
 
 	[languages.en]
-		languageName = 'English'
-		languageCode = 'en-US'
+		label = 'English'
+		locale = 'en-US'
 		weight = 2
 		title = 'Yan Wang'
 
@@ -82,15 +82,23 @@ defaultContentLanguage = 'zh-cn'
 			weight = 40
 
 [params]
+	favicon = "img/favicon.svg"
+	defaultImage = "img/profile.jpeg"
+
 	[params.dateFormat]
 		published = "2006-01-02"
+		lastUpdated = "2006-01-02"
+
+[frontmatter]
+	date = ["date", "publishDate"]
+	lastmod = ["lastmod", ":git", "date", "publishDate"]
 	
 	[params.colorScheme]
 		toggle = true  # 启用深色/浅色模式切换
 		default = "light"  # 默认使用浅色模式
 
 	[params.motion]
-		level = "normal"  # subtle | normal | strong | off
+		level = "ambient"  # 保留轻量动态连线背景，关闭卡片 3D 浮动
 
 [params.sidebar]
 	subtitle = ""
@@ -100,8 +108,8 @@ defaultContentLanguage = 'zh-cn'
 	enabled = true
 	photo = "img/profile.jpeg"
 	photoAlt = "Yan Wang"
-	role = "CS @ XJTU | ML & Systems"
-	location = "Xi'an, China"
+	role = "MSc Computer Science | HPC"
+	location = "Amsterdam, Netherlands"
 	email = "embersdlc@gmail.com"
-	github = "https://github.com/yourname"
+	github = "https://github.com/yanlinee"
 	instagram = ""
