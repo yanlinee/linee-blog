@@ -16,9 +16,53 @@
 <div class="projects-intro">{{ . }}</div>
 {{ end }}
 
+{{- if gt (len $projects) 1 -}}
+{{- $statuses := slice -}}
+{{- $types := slice -}}
+{{- range $projects -}}
+    {{- $statuses = $statuses | append (.Params.status | default "active") -}}
+    {{- $types = $types | append (.Params.projectType | default "project") -}}
+{{- end -}}
+<section class="project-filters" data-project-filters>
+    <label class="project-filter-search">
+        {{ partial "helper/icon" "search" }}
+        <input type="search" data-project-query autocomplete="off"
+            placeholder='{{ if eq .Site.Language.Lang "zh-cn" }}筛选项目…{{ else }}Filter projects…{{ end }}'>
+    </label>
+    <div class="project-filter-groups">
+        <div class="project-filter-group" aria-label='{{ if eq .Site.Language.Lang "zh-cn" }}按状态筛选{{ else }}Filter by status{{ end }}'>
+            <span>{{ if eq .Site.Language.Lang "zh-cn" }}状态{{ else }}Status{{ end }}</span>
+            <button type="button" class="is-active" data-project-filter="status" data-filter-value="all" aria-pressed="true">{{ if eq .Site.Language.Lang "zh-cn" }}全部{{ else }}All{{ end }}</button>
+            {{ range ($statuses | uniq | sort) }}
+            <button type="button" data-project-filter="status" data-filter-value="{{ . }}" aria-pressed="false">
+                {{- if eq . "active" -}}{{ if eq $.Site.Language.Lang "zh-cn" }}进行中{{ else }}Active{{ end }}
+                {{- else if eq . "completed" -}}{{ if eq $.Site.Language.Lang "zh-cn" }}已完成{{ else }}Completed{{ end }}
+                {{- else -}}{{ . | humanize }}{{- end -}}
+            </button>
+            {{ end }}
+        </div>
+        <div class="project-filter-group" aria-label='{{ if eq .Site.Language.Lang "zh-cn" }}按类型筛选{{ else }}Filter by type{{ end }}'>
+            <span>{{ if eq .Site.Language.Lang "zh-cn" }}类型{{ else }}Type{{ end }}</span>
+            <button type="button" class="is-active" data-project-filter="type" data-filter-value="all" aria-pressed="true">{{ if eq .Site.Language.Lang "zh-cn" }}全部{{ else }}All{{ end }}</button>
+            {{ range ($types | uniq | sort) }}
+            <button type="button" data-project-filter="type" data-filter-value="{{ . }}" aria-pressed="false">
+                {{- if and (eq $.Site.Language.Lang "zh-cn") (eq . "open-source") -}}开源
+                {{- else if and (eq $.Site.Language.Lang "zh-cn") (eq . "research") -}}研究
+                {{- else -}}{{ . | humanize }}{{- end -}}
+            </button>
+            {{ end }}
+        </div>
+    </div>
+    <p class="project-filter-count"><strong data-project-visible-count>{{ len $projects }}</strong> / {{ len $projects }}</p>
+</section>
+{{- end -}}
+
 <section class="projects-grid" aria-label="{{ if eq .Site.Language.Lang "zh-cn" }}项目列表{{ else }}Project list{{ end }}">
     {{ range $index, $project := $projects }}
-    <article class="project-card{{ if .Params.featured }} project-card--featured{{ end }}">
+    <article class="project-card{{ if .Params.featured }} project-card--featured{{ end }}" data-project-card
+        data-project-status="{{ .Params.status | default `active` }}"
+        data-project-type="{{ .Params.projectType | default `project` }}"
+        data-project-search="{{ printf `%s %s %s` .Title .Params.description (delimit (.Params.tech | default (slice)) ` `) | lower }}">
         <a href="{{ .RelPermalink }}">
             <div class="project-card-topline">
                 <span class="project-card-index">{{ printf "%02d" (add $index 1) }}</span>
@@ -48,6 +92,7 @@
     {{ else }}
     <p class="projects-empty">{{ if eq .Site.Language.Lang "zh-cn" }}项目正在整理中。{{ else }}Projects are being prepared.{{ end }}</p>
     {{ end }}
+    <p class="projects-empty" data-project-filter-empty hidden>{{ if eq .Site.Language.Lang "zh-cn" }}没有符合当前条件的项目。{{ else }}No projects match these filters.{{ end }}</p>
 </section>
 
 {{ partialCached "footer/footer" . }}

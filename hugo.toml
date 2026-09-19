@@ -8,6 +8,9 @@ enableGitInfo = true
 
 defaultContentLanguage = 'zh-cn'
 
+[outputs]
+	home = ["HTML", "RSS", "JSON"]
+
 [languages]
 	[languages.zh-cn]
 		label = '中文'

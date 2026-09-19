@@ -1,15 +1,14 @@
 <script>
     (() => {
+        if (window.__lineeSiteBooted) return;
+        window.__lineeSiteBooted = true;
+
         const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+        const siteRoot = new URL('{{ .Site.BaseURL | safeJS }}', window.location.href);
         const motionLevel = '{{ .Site.Params.motion.level | default "normal" }}';
         const motionProfiles = {
-            off: {
-                enableCardFloat: false,
-                enableNetwork: false
-            },
+            off: { enableNetwork: false },
             ambient: {
-                enableCardFloat: false,
                 enableNetwork: true,
                 pointCountScale: 1.15,
                 offsetFactor: 0.018,
@@ -20,16 +19,7 @@
                 pointRadius: 1.2
             },
             subtle: {
-                enableCardFloat: true,
                 enableNetwork: true,
-                followLerp: 0.1,
-                liftLerp: 0.09,
-                lift: 6,
-                z: 9,
-                tx: 6,
-                ty: 5,
-                rx: 3.6,
-                ry: 3.6,
                 pointCountScale: 0.7,
                 offsetFactor: 0.02,
                 linkDistance: 145,
@@ -39,16 +29,7 @@
                 pointRadius: 1.4
             },
             normal: {
-                enableCardFloat: true,
                 enableNetwork: true,
-                followLerp: 0.14,
-                liftLerp: 0.12,
-                lift: 9,
-                z: 14,
-                tx: 10,
-                ty: 8,
-                rx: 5.2,
-                ry: 5.2,
                 pointCountScale: 1,
                 offsetFactor: 0.035,
                 linkDistance: 170,
@@ -58,16 +39,7 @@
                 pointRadius: 1.8
             },
             strong: {
-                enableCardFloat: true,
                 enableNetwork: true,
-                followLerp: 0.18,
-                liftLerp: 0.14,
-                lift: 12,
-                z: 20,
-                tx: 13,
-                ty: 11,
-                rx: 6.8,
-                ry: 6.8,
                 pointCountScale: 1.2,
                 offsetFactor: 0.05,
                 linkDistance: 190,
@@ -77,450 +49,774 @@
                 pointRadius: 2.1
             }
         };
-        const profile = motionProfiles[motionLevel] || motionProfiles.normal;
+        const motionProfile = motionProfiles[motionLevel] || motionProfiles.normal;
+        const pageCache = new Map();
+        const searchCache = new Map();
+        let visitCountRequest = null;
+        let pageController = null;
+        let navigationSequence = 0;
 
-        // Mobile left drawer for top navigation
-        (() => {
+        const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+        const currentLanguage = () => document.documentElement.lang.toLowerCase().startsWith('zh') ? 'zh-cn' : 'en';
+
+        const closeMobileDrawer = () => {
             const trigger = document.querySelector('.top-nav-mobile-trigger');
             const drawer = document.getElementById('top-nav-drawer');
-            if (!trigger || !drawer) return;
+            document.body.classList.remove('top-nav-drawer-open');
+            if (trigger) trigger.setAttribute('aria-expanded', 'false');
+            if (drawer) drawer.setAttribute('aria-hidden', 'true');
+        };
 
-            const closeTargets = Array.from(document.querySelectorAll('[data-top-nav-close]'));
-            const drawerLinks = Array.from(drawer.querySelectorAll('a'));
-            const drawerThemeToggle = drawer.querySelector('.top-nav-drawer-theme-toggle');
-            const globalThemeToggle = document.getElementById('dark-mode-toggle');
+        const setLanguageOpen = (switcher, open, focusFirst = false) => {
+            if (!switcher) return;
+            const trigger = switcher.querySelector('.language-switcher-trigger');
+            const menu = switcher.querySelector('.language-switcher-menu');
+            const options = Array.from(switcher.querySelectorAll('.language-switcher-option'));
+            if (!trigger || !menu) return;
 
-            const setOpen = (open) => {
-                document.body.classList.toggle('top-nav-drawer-open', open);
-                trigger.setAttribute('aria-expanded', open ? 'true' : 'false');
-                drawer.setAttribute('aria-hidden', open ? 'false' : 'true');
-            };
+            window.clearTimeout(switcher.__languageCloseTimer);
+            trigger.setAttribute('aria-expanded', open ? 'true' : 'false');
 
-            trigger.addEventListener('click', () => {
-                const open = !document.body.classList.contains('top-nav-drawer-open');
-                setOpen(open);
-            });
-
-            closeTargets.forEach((el) => el.addEventListener('click', () => setOpen(false)));
-            drawerLinks.forEach((el) => el.addEventListener('click', () => setOpen(false)));
-
-            if (drawerThemeToggle && globalThemeToggle) {
-                drawerThemeToggle.addEventListener('click', () => {
-                    globalThemeToggle.click();
+            if (open) {
+                document.querySelectorAll('[data-language-switcher].is-open').forEach((other) => {
+                    if (other !== switcher) setLanguageOpen(other, false);
                 });
+                menu.hidden = false;
+                requestAnimationFrame(() => {
+                    switcher.classList.add('is-open');
+                    if (focusFirst && options.length) options[0].focus();
+                });
+                return;
             }
 
-            window.addEventListener('keydown', (event) => {
-                if (event.key === 'Escape') {
-                    setOpen(false);
-                }
+            switcher.classList.remove('is-open');
+            switcher.__languageCloseTimer = window.setTimeout(() => {
+                if (!switcher.classList.contains('is-open')) menu.hidden = true;
+            }, 170);
+        };
+
+        const closeLanguageMenus = () => {
+            document.querySelectorAll('[data-language-switcher].is-open').forEach((switcher) => setLanguageOpen(switcher, false));
+        };
+
+        const bindSoftThemeToggle = () => {
+            const toggle = document.getElementById('dark-mode-toggle');
+            if (!toggle || toggle.dataset.softThemeBound === 'true') return;
+            toggle.dataset.softThemeBound = 'true';
+            toggle.addEventListener('click', () => {
+                const next = document.documentElement.dataset.scheme === 'dark' ? 'light' : 'dark';
+                document.documentElement.dataset.scheme = next;
+                localStorage.setItem('StackColorScheme', next);
+                window.dispatchEvent(new CustomEvent('onColorSchemeChange', { detail: next }));
             });
+        };
 
-            window.addEventListener('resize', () => {
-                if (window.innerWidth > 1023) {
-                    setOpen(false);
-                }
-            }, { passive: true });
-        })();
-
-        // Custom language popover (keeps the control consistent across OSes)
-        (() => {
-            const switchers = Array.from(document.querySelectorAll('[data-language-switcher]'));
-            if (!switchers.length) return;
-
-            switchers.forEach((switcher) => {
-                const trigger = switcher.querySelector('.language-switcher-trigger');
-                const menu = switcher.querySelector('.language-switcher-menu');
-                const options = Array.from(switcher.querySelectorAll('.language-switcher-option'));
-                if (!trigger || !menu) return;
-
-                let closeTimer = 0;
-
-                const setOpen = (open, focusFirst = false) => {
-                    window.clearTimeout(closeTimer);
-                    trigger.setAttribute('aria-expanded', open ? 'true' : 'false');
-
-                    if (open) {
-                        menu.hidden = false;
-                        requestAnimationFrame(() => {
-                            switcher.classList.add('is-open');
-                            if (focusFirst && options.length) options[0].focus();
-                        });
-                        return;
-                    }
-
-                    switcher.classList.remove('is-open');
-                    closeTimer = window.setTimeout(() => {
-                        if (!switcher.classList.contains('is-open')) menu.hidden = true;
-                    }, 170);
-                };
-
-                trigger.addEventListener('click', (event) => {
-                    event.stopPropagation();
-                    setOpen(!switcher.classList.contains('is-open'));
-                });
-
-                trigger.addEventListener('keydown', (event) => {
-                    if (event.key === 'ArrowDown') {
-                        event.preventDefault();
-                        setOpen(true, true);
-                    }
-                });
-
-                menu.addEventListener('keydown', (event) => {
-                    const currentIndex = options.indexOf(document.activeElement);
-
-                    if (event.key === 'Escape') {
-                        event.preventDefault();
-                        setOpen(false);
-                        trigger.focus();
-                    } else if (event.key === 'ArrowDown' && options.length) {
-                        event.preventDefault();
-                        options[(currentIndex + 1 + options.length) % options.length].focus();
-                    } else if (event.key === 'ArrowUp' && options.length) {
-                        event.preventDefault();
-                        options[(currentIndex - 1 + options.length) % options.length].focus();
-                    } else if (event.key === 'Home' && options.length) {
-                        event.preventDefault();
-                        options[0].focus();
-                    } else if (event.key === 'End' && options.length) {
-                        event.preventDefault();
-                        options[options.length - 1].focus();
-                    }
-                });
-
-                document.addEventListener('pointerdown', (event) => {
-                    if (!switcher.contains(event.target)) setOpen(false);
-                });
-
-                switcher.addEventListener('focusout', (event) => {
-                    if (!switcher.contains(event.relatedTarget)) setOpen(false);
-                });
-
-                window.addEventListener('keydown', (event) => {
-                    if (event.key === 'Escape' && switcher.classList.contains('is-open')) {
-                        setOpen(false);
-                        trigger.focus();
-                    }
-                });
-
-                window.addEventListener('resize', () => {
-                    if (window.innerWidth <= 1023) setOpen(false);
-                }, { passive: true });
-            });
-        })();
-
-        // Left outline scrollspy: highlight current section and keep it visible
-        (() => {
+        const initOutline = (signal) => {
             const outlineNav = document.getElementById('ArticleOutlineNav');
             if (!outlineNav) return;
-
             const links = Array.from(outlineNav.querySelectorAll('a[href^="#"]'));
             if (!links.length) return;
 
             const toId = (href) => decodeURIComponent((href || '').replace(/^#/, ''));
-            const linkById = new Map();
-            links.forEach((link) => {
-                const id = toId(link.getAttribute('href'));
-                if (id) linkById.set(id, link);
-            });
-
+            const linkById = new Map(links.map((link) => [toId(link.getAttribute('href')), link]));
             const headings = Array.from(document.querySelectorAll('.article-content h1[id], .article-content h2[id], .article-content h3[id], .article-content h4[id], .article-content h5[id], .article-content h6[id]'))
                 .filter((heading) => linkById.has(heading.id));
-
             if (!headings.length) return;
 
             const outlineBox = outlineNav.closest('.left-outline-block');
             let activeId = '';
-
-            const scrollActiveIntoView = (activeLink) => {
-                if (!activeLink || !outlineBox) return;
-                const linkTop = activeLink.offsetTop;
-                const linkBottom = linkTop + activeLink.offsetHeight;
-                const viewTop = outlineBox.scrollTop;
-                const viewBottom = viewTop + outlineBox.clientHeight;
-
-                if (linkTop < viewTop + 24 || linkBottom > viewBottom - 24) {
-                    const targetTop = Math.max(0, linkTop - outlineBox.clientHeight * 0.35);
-                    outlineBox.scrollTo({
-                        top: targetTop,
-                        behavior: reducedMotion ? 'auto' : 'smooth'
-                    });
-                }
-            };
+            let ticking = false;
 
             const setActive = (id) => {
                 if (!id || id === activeId) return;
                 activeId = id;
-
                 links.forEach((link) => {
                     const isActive = toId(link.getAttribute('href')) === id;
                     link.classList.toggle('is-active', isActive);
-                    const li = link.closest('li');
-                    if (li) {
-                        li.classList.toggle('active', isActive);
-                        li.classList.remove('active-parent');
+                    const item = link.closest('li');
+                    if (item) {
+                        item.classList.toggle('active', isActive);
+                        item.classList.remove('active-parent');
                     }
                 });
-
                 const activeLink = linkById.get(id);
-                if (activeLink) {
-                    let currentLi = activeLink.closest('li');
-                    while (currentLi) {
-                        currentLi.classList.add('active-parent');
-                        const parentList = currentLi.parentElement;
-                        currentLi = parentList ? parentList.closest('li') : null;
+                if (!activeLink) return;
+                let currentItem = activeLink.closest('li');
+                while (currentItem) {
+                    currentItem.classList.add('active-parent');
+                    const parentList = currentItem.parentElement;
+                    currentItem = parentList ? parentList.closest('li') : null;
+                }
+                if (outlineBox) {
+                    const top = activeLink.offsetTop;
+                    const bottom = top + activeLink.offsetHeight;
+                    if (top < outlineBox.scrollTop + 24 || bottom > outlineBox.scrollTop + outlineBox.clientHeight - 24) {
+                        outlineBox.scrollTo({
+                            top: Math.max(0, top - outlineBox.clientHeight * 0.35),
+                            behavior: reducedMotion ? 'auto' : 'smooth'
+                        });
                     }
                 }
-
-                scrollActiveIntoView(activeLink);
             };
 
-            const updateActive = () => {
+            const update = () => {
                 const scanLine = window.scrollY + 170;
                 let current = headings[0].id;
-
                 for (const heading of headings) {
-                    if (heading.offsetTop <= scanLine) {
-                        current = heading.id;
-                    } else {
-                        break;
-                    }
+                    if (heading.offsetTop <= scanLine) current = heading.id;
+                    else break;
                 }
-
                 setActive(current);
             };
 
-            let ticking = false;
             const onScroll = () => {
                 if (ticking) return;
                 ticking = true;
                 requestAnimationFrame(() => {
-                    updateActive();
+                    update();
                     ticking = false;
                 });
             };
 
-            links.forEach((link) => {
-                link.addEventListener('click', () => {
-                    setActive(toId(link.getAttribute('href')));
-                });
-            });
+            window.addEventListener('scroll', onScroll, { passive: true, signal });
+            window.addEventListener('resize', onScroll, { passive: true, signal });
+            update();
+        };
 
-            window.addEventListener('scroll', onScroll, { passive: true });
-            window.addEventListener('resize', onScroll, { passive: true });
-            updateActive();
-        })();
+        const initReadingTools = (signal) => {
+            const progress = document.querySelector('[data-reading-progress]');
+            const progressBar = document.querySelector('[data-reading-progress-bar]');
+            const backToTop = document.querySelector('[data-back-to-top]');
+            const article = document.querySelector('.article-page .main-article:not(.profile-content-card) .article-content');
+            let ticking = false;
+            if (progress) progress.hidden = !article;
 
-        // Subtle mouse-reactive floating cards
-        if (!reducedMotion && finePointer && profile.enableCardFloat) {
-            const cards = document.querySelectorAll('.section-card, .portal-home-card, .news-timeline-card, .article-list article, .left-profile-block, .left-outline-block');
-
-            const animateCard = (card, state) => {
-                state.current.x += (state.target.x - state.current.x) * profile.followLerp;
-                state.current.y += (state.target.y - state.current.y) * profile.followLerp;
-                state.current.rx += (state.target.rx - state.current.rx) * profile.followLerp;
-                state.current.ry += (state.target.ry - state.current.ry) * profile.followLerp;
-                state.current.lift += (state.target.lift - state.current.lift) * profile.liftLerp;
-                state.current.z += (state.target.z - state.current.z) * profile.liftLerp;
-
-                card.style.setProperty('--float-x', `${state.current.x.toFixed(2)}px`);
-                card.style.setProperty('--float-y', `${state.current.y.toFixed(2)}px`);
-                card.style.setProperty('--float-rx', `${state.current.rx.toFixed(2)}deg`);
-                card.style.setProperty('--float-ry', `${state.current.ry.toFixed(2)}deg`);
-                card.style.setProperty('--float-lift', `${state.current.lift.toFixed(2)}px`);
-                card.style.setProperty('--float-z', `${state.current.z.toFixed(2)}px`);
-
-                const idle =
-                    Math.abs(state.target.x - state.current.x) < 0.06 &&
-                    Math.abs(state.target.y - state.current.y) < 0.06 &&
-                    Math.abs(state.target.rx - state.current.rx) < 0.06 &&
-                    Math.abs(state.target.ry - state.current.ry) < 0.06 &&
-                    Math.abs(state.target.lift - state.current.lift) < 0.06 &&
-                    Math.abs(state.target.z - state.current.z) < 0.06;
-
-                if (idle && !state.hovering) {
-                    card.classList.remove('is-floating');
-                    state.raf = 0;
-                    return;
+            const update = () => {
+                if (article && progress && progressBar) {
+                    const start = article.getBoundingClientRect().top + window.scrollY;
+                    const end = start + article.offsetHeight - window.innerHeight;
+                    const ratio = end <= start ? 1 : clamp((window.scrollY - start) / (end - start), 0, 1);
+                    progressBar.style.transform = `scaleX(${ratio.toFixed(4)})`;
                 }
-
-                state.raf = requestAnimationFrame(() => animateCard(card, state));
+                if (backToTop) {
+                    const hasRoom = document.documentElement.scrollHeight > window.innerHeight * 1.45;
+                    backToTop.hidden = !(hasRoom && window.scrollY > 620);
+                }
             };
 
-            const ensureAnimation = (card, state) => {
-                if (state.raf) {
-                    return;
-                }
-                state.raf = requestAnimationFrame(() => animateCard(card, state));
+            const onScroll = () => {
+                if (ticking) return;
+                ticking = true;
+                requestAnimationFrame(() => {
+                    update();
+                    ticking = false;
+                });
+            };
+            window.addEventListener('scroll', onScroll, { passive: true, signal });
+            window.addEventListener('resize', onScroll, { passive: true, signal });
+            update();
+        };
+
+        const initProjectFilters = (signal) => {
+            const panel = document.querySelector('[data-project-filters]');
+            if (!panel) return;
+            const cards = Array.from(document.querySelectorAll('[data-project-card]'));
+            const input = panel.querySelector('[data-project-query]');
+            const count = panel.querySelector('[data-project-visible-count]');
+            const empty = document.querySelector('[data-project-filter-empty]');
+            const state = { status: 'all', type: 'all', query: '' };
+
+            const apply = () => {
+                let visible = 0;
+                cards.forEach((card) => {
+                    const matchesStatus = state.status === 'all' || card.dataset.projectStatus === state.status;
+                    const matchesType = state.type === 'all' || card.dataset.projectType === state.type;
+                    const matchesQuery = !state.query || (card.dataset.projectSearch || '').includes(state.query);
+                    const show = matchesStatus && matchesType && matchesQuery;
+                    card.hidden = !show;
+                    if (show) visible += 1;
+                });
+                if (count) count.textContent = String(visible);
+                if (empty) empty.hidden = visible !== 0;
             };
 
-            cards.forEach((card) => {
-                card.classList.add('ios-float-card');
-
-                const state = {
-                    hovering: false,
-                    raf: 0,
-                    current: { x: 0, y: 0, rx: 0, ry: 0, lift: 0, z: 0 },
-                    target: { x: 0, y: 0, rx: 0, ry: 0, lift: 0, z: 0 }
-                };
-
-                card.addEventListener('pointerenter', () => {
-                    state.hovering = true;
-                    card.classList.add('is-floating');
-                    state.target.lift = profile.lift;
-                    state.target.z = profile.z;
-                    ensureAnimation(card, state);
-                });
-
-                card.addEventListener('pointermove', (event) => {
-                    const rect = card.getBoundingClientRect();
-                    const x = (event.clientX - rect.left) / rect.width;
-                    const y = (event.clientY - rect.top) / rect.height;
-
-                    state.target.x = (x - 0.5) * profile.tx;
-                    state.target.y = (y - 0.5) * profile.ty;
-                    state.target.rx = (0.5 - y) * profile.rx;
-                    state.target.ry = (x - 0.5) * profile.ry;
-                    state.target.lift = profile.lift;
-                    state.target.z = profile.z;
-                    ensureAnimation(card, state);
-                });
-
-                card.addEventListener('pointerleave', () => {
-                    state.hovering = false;
-                    state.target.x = 0;
-                    state.target.y = 0;
-                    state.target.rx = 0;
-                    state.target.ry = 0;
-                    state.target.lift = 0;
-                    state.target.z = 0;
-                    ensureAnimation(card, state);
-                });
+            panel.querySelectorAll('[data-project-filter]').forEach((button) => {
+                button.addEventListener('click', () => {
+                    const group = button.dataset.projectFilter;
+                    state[group] = button.dataset.filterValue;
+                    panel.querySelectorAll(`[data-project-filter="${group}"]`).forEach((candidate) => {
+                        const active = candidate === button;
+                        candidate.classList.toggle('is-active', active);
+                        candidate.setAttribute('aria-pressed', active ? 'true' : 'false');
+                    });
+                    apply();
+                }, { signal });
             });
-        }
-
-        // Floating network background reacting to pointer movement
-        if (reducedMotion || !profile.enableNetwork) {
-            return;
-        }
-
-        const canvas = document.createElement('canvas');
-        canvas.className = 'bg-network-canvas';
-        document.body.prepend(canvas);
-
-        const ctx = canvas.getContext('2d');
-        if (!ctx) {
-            return;
-        }
-
-        const dpr = () => Math.min(window.devicePixelRatio || 1, 2);
-        let width = 0;
-        let height = 0;
-        let points = [];
-        let rafId = 0;
-
-        const pointer = {
-            x: window.innerWidth / 2,
-            y: window.innerHeight / 2
-        };
-
-        const createPoints = () => {
-            const baseCount = window.innerWidth > 1200 ? 72 : (window.innerWidth > 800 ? 54 : 38);
-            const count = Math.max(14, Math.round(baseCount * profile.pointCountScale));
-            points = Array.from({ length: count }, () => ({
-                x: Math.random() * width,
-                y: Math.random() * height,
-                vx: (Math.random() - 0.5) * 0.35,
-                vy: (Math.random() - 0.5) * 0.35,
-                depth: 0.3 + Math.random() * 0.8
-            }));
-        };
-
-        const resize = () => {
-            width = window.innerWidth;
-            height = window.innerHeight;
-            canvas.width = Math.floor(width * dpr());
-            canvas.height = Math.floor(height * dpr());
-            canvas.style.width = `${width}px`;
-            canvas.style.height = `${height}px`;
-            ctx.setTransform(dpr(), 0, 0, dpr(), 0, 0);
-            createPoints();
-        };
-
-        const networkColor = (property, fallback) =>
-            getComputedStyle(document.documentElement).getPropertyValue(property).trim() || fallback;
-
-        const draw = () => {
-            ctx.clearRect(0, 0, width, height);
-
-            const offsetX = (pointer.x - width / 2) * profile.offsetFactor;
-            const offsetY = (pointer.y - height / 2) * profile.offsetFactor;
-            const lineRgb = networkColor('--network-line-rgb', '15, 108, 255');
-            const pointRgb = networkColor('--network-point-rgb', '0, 122, 255');
-
-            for (const p of points) {
-                p.x += p.vx;
-                p.y += p.vy;
-
-                if (p.x < -20 || p.x > width + 20) p.vx *= -1;
-                if (p.y < -20 || p.y > height + 20) p.vy *= -1;
+            if (input) {
+                input.addEventListener('input', () => {
+                    state.query = input.value.trim().toLocaleLowerCase();
+                    apply();
+                }, { signal });
             }
+        };
 
-            for (let i = 0; i < points.length; i++) {
-                const p1 = points[i];
-                const x1 = p1.x + offsetX * p1.depth;
-                const y1 = p1.y + offsetY * p1.depth;
-
-                for (let j = i + 1; j < points.length; j++) {
-                    const p2 = points[j];
-                    const x2 = p2.x + offsetX * p2.depth;
-                    const y2 = p2.y + offsetY * p2.depth;
-
-                    const dx = x1 - x2;
-                    const dy = y1 - y2;
-                    const dist = Math.hypot(dx, dy);
-
-                    if (dist < profile.linkDistance) {
-                        const alpha = (1 - dist / profile.linkDistance) * profile.linkAlpha;
-                        ctx.strokeStyle = `rgba(${lineRgb}, ${alpha.toFixed(3)})`;
-                        ctx.lineWidth = profile.lineWidth;
-                        ctx.beginPath();
-                        ctx.moveTo(x1, y1);
-                        ctx.lineTo(x2, y2);
-                        ctx.stroke();
+        const initCodeCopy = (signal) => {
+            document.querySelectorAll('.article-content div.highlight').forEach((highlight) => {
+                if (highlight.querySelector('.copyCodeButton')) return;
+                const code = highlight.querySelector('code[data-lang]');
+                if (!code) return;
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.className = 'copyCodeButton';
+                button.textContent = currentLanguage() === 'zh-cn' ? '复制' : 'Copy';
+                highlight.appendChild(button);
+                button.addEventListener('click', async () => {
+                    try {
+                        await navigator.clipboard.writeText(code.textContent || '');
+                        button.textContent = currentLanguage() === 'zh-cn' ? '已复制' : 'Copied!';
+                        window.setTimeout(() => {
+                            button.textContent = currentLanguage() === 'zh-cn' ? '复制' : 'Copy';
+                        }, 1000);
+                    } catch (error) {
+                        console.warn('Unable to copy code', error);
                     }
-                }
-
-                ctx.fillStyle = `rgba(${pointRgb}, ${profile.pointAlpha})`;
-                ctx.beginPath();
-                ctx.arc(x1, y1, profile.pointRadius, 0, Math.PI * 2);
-                ctx.fill();
-            }
-
-            rafId = requestAnimationFrame(draw);
+                }, { signal });
+            });
         };
 
-        window.addEventListener('resize', resize, { passive: true });
-        window.addEventListener('pointermove', (event) => {
-            pointer.x = event.clientX;
-            pointer.y = event.clientY;
+        const initVisitCounter = () => {
+            const counter = document.querySelector('[data-site-visits]');
+            const value = counter?.querySelector('[data-site-visit-count]');
+            if (!counter || !value) return;
+
+            counter.dataset.state = 'loading';
+            if (!visitCountRequest) {
+                visitCountRequest = fetch(counter.dataset.countEndpoint, {
+                    headers: { Accept: 'application/json' },
+                    mode: 'cors'
+                }).then((response) => {
+                    if (!response.ok) throw new Error(`Visit counter returned ${response.status}`);
+                    return response.json();
+                }).then((data) => {
+                    if (typeof data.count !== 'string' && typeof data.count !== 'number') {
+                        throw new Error('Visit counter response is missing count');
+                    }
+                    return String(data.count);
+                });
+            }
+
+            visitCountRequest.then((count) => {
+                value.textContent = count;
+                value.removeAttribute('aria-label');
+                counter.dataset.state = 'ready';
+            }).catch((error) => {
+                value.textContent = '—';
+                value.setAttribute('aria-label', counter.dataset.countUnavailable || 'Visit count unavailable');
+                counter.dataset.state = 'unavailable';
+                console.warn('Unable to load public visit count', error);
+            });
+        };
+
+        const initPageFeatures = ({ softNavigation = false } = {}) => {
+            if (pageController) pageController.abort();
+            pageController = new AbortController();
+            const { signal } = pageController;
+            initOutline(signal);
+            initReadingTools(signal);
+            initProjectFilters(signal);
+            initVisitCounter();
+            if (softNavigation) {
+                bindSoftThemeToggle();
+                initCodeCopy(signal);
+            }
+        };
+
+        const normalizeSearchText = (value) => (value || '')
+            .normalize('NFKD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .toLocaleLowerCase()
+            .trim();
+
+        const getSearchState = (dialog) => {
+            if (!dialog.__searchState) dialog.__searchState = { items: [], selected: -1, query: '' };
+            return dialog.__searchState;
+        };
+
+        const sectionLabel = (section, language) => {
+            const labels = language === 'zh-cn'
+                ? { post: '文章', projects: '项目', reading: '读书笔记', page: '页面' }
+                : { post: 'Post', projects: 'Project', reading: 'Reading', page: 'Page' };
+            return labels[section] || section;
+        };
+
+        const loadSearchIndex = async (dialog) => {
+            const indexURL = new URL(dialog.dataset.searchIndex, window.location.href).href;
+            if (!searchCache.has(indexURL)) {
+                searchCache.set(indexURL, fetch(indexURL, { headers: { Accept: 'application/json' } })
+                    .then((response) => {
+                        if (!response.ok) throw new Error(`Search index returned ${response.status}`);
+                        return response.json();
+                    })
+                    .then((data) => Array.isArray(data.items) ? data.items : [])
+                    .catch((error) => {
+                        searchCache.delete(indexURL);
+                        throw error;
+                    }));
+            }
+            return searchCache.get(indexURL);
+        };
+
+        const renderSearch = (dialog) => {
+            if (!dialog) return;
+            const input = dialog.querySelector('[data-site-search-input]');
+            const results = dialog.querySelector('[data-site-search-results]');
+            const status = dialog.querySelector('[data-site-search-status]');
+            const state = getSearchState(dialog);
+            if (!input || !results || !status) return;
+
+            const query = normalizeSearchText(input.value);
+            const tokens = query.split(/\s+/).filter(Boolean);
+            const ranked = state.items.map((item) => {
+                const title = normalizeSearchText(item.title);
+                const tags = normalizeSearchText((item.tags || []).join(' '));
+                const description = normalizeSearchText(item.description);
+                const haystack = `${title} ${tags} ${description} ${normalizeSearchText(item.section)}`;
+                if (tokens.length && !tokens.every((token) => haystack.includes(token))) return null;
+                let score = 0;
+                if (query) {
+                    if (title === query) score += 120;
+                    else if (title.startsWith(query)) score += 80;
+                    else if (title.includes(query)) score += 55;
+                    if (tags.includes(query)) score += 28;
+                    if (description.includes(query)) score += 14;
+                }
+                return { item, score };
+            }).filter(Boolean)
+                .sort((a, b) => b.score - a.score || String(b.item.date).localeCompare(String(a.item.date)))
+                .slice(0, 9);
+
+            state.query = query;
+            state.selected = ranked.length ? 0 : -1;
+            results.replaceChildren();
+            if (!ranked.length) {
+                status.textContent = query ? dialog.dataset.searchEmpty : dialog.dataset.searchIdle;
+                return;
+            }
+
+            status.textContent = query
+                ? (dialog.dataset.searchLanguage === 'zh-cn' ? `找到 ${ranked.length} 条结果` : `${ranked.length} result${ranked.length === 1 ? '' : 's'}`)
+                : (dialog.dataset.searchLanguage === 'zh-cn' ? '最近内容' : 'Recent content');
+
+            const fragment = document.createDocumentFragment();
+            ranked.forEach(({ item }, index) => {
+                const row = document.createElement('li');
+                row.className = `site-search-result${index === state.selected ? ' is-selected' : ''}`;
+                const link = document.createElement('a');
+                link.href = item.url;
+                link.dataset.searchResult = '';
+                const title = document.createElement('strong');
+                title.textContent = item.title;
+                const type = document.createElement('small');
+                type.textContent = sectionLabel(item.section, dialog.dataset.searchLanguage);
+                const description = document.createElement('p');
+                description.textContent = item.description || '';
+                link.append(title, type, description);
+                row.appendChild(link);
+                fragment.appendChild(row);
+            });
+            results.appendChild(fragment);
+        };
+
+        const setSearchSelection = (dialog, nextIndex) => {
+            const rows = Array.from(dialog.querySelectorAll('.site-search-result'));
+            if (!rows.length) return;
+            const state = getSearchState(dialog);
+            state.selected = (nextIndex + rows.length) % rows.length;
+            rows.forEach((row, index) => row.classList.toggle('is-selected', index === state.selected));
+            rows[state.selected].querySelector('a')?.scrollIntoView({ block: 'nearest' });
+        };
+
+        const openSearch = async () => {
+            const dialog = document.getElementById('site-search-dialog');
+            if (!dialog) return;
+            if (!dialog.open) dialog.showModal();
+            const input = dialog.querySelector('[data-site-search-input]');
+            requestAnimationFrame(() => input?.focus());
+            try {
+                const state = getSearchState(dialog);
+                state.items = await loadSearchIndex(dialog);
+                renderSearch(dialog);
+            } catch (error) {
+                const status = dialog.querySelector('[data-site-search-status]');
+                if (status) status.textContent = currentLanguage() === 'zh-cn' ? '搜索索引加载失败' : 'Unable to load search index';
+                console.warn('Unable to load search index', error);
+            }
+        };
+
+        const closeSearch = () => {
+            const dialog = document.getElementById('site-search-dialog');
+            if (dialog?.open) dialog.close();
+        };
+
+        const isEditableTarget = (target) => target instanceof HTMLElement &&
+            (target.matches('input, textarea, select') || target.isContentEditable);
+
+        const pageKey = (url) => {
+            const key = new URL(url, window.location.href);
+            key.hash = '';
+            return key.href;
+        };
+
+        const isSoftNavigableURL = (url) => {
+            if (url.origin !== window.location.origin) return false;
+            if (!url.pathname.startsWith(siteRoot.pathname)) return false;
+            return !/\.(?:xml|json|pdf|zip|png|jpe?g|gif|webp|svg|ico)$/i.test(url.pathname);
+        };
+
+        const getPageDocument = async (url) => {
+            const key = pageKey(url);
+            if (!pageCache.has(key)) {
+                const request = fetch(key, { headers: { Accept: 'text/html', 'X-Requested-With': 'LineeSoftNavigation' } })
+                    .then((response) => {
+                        if (!response.ok || !response.headers.get('content-type')?.includes('text/html')) {
+                            throw new Error(`Navigation returned ${response.status}`);
+                        }
+                        return response.text();
+                    })
+                    .then((html) => new DOMParser().parseFromString(html, 'text/html'))
+                    .catch((error) => {
+                        pageCache.delete(key);
+                        throw error;
+                    });
+                pageCache.set(key, request);
+                if (pageCache.size > 12) pageCache.delete(pageCache.keys().next().value);
+            }
+            return pageCache.get(key);
+        };
+
+        const syncHead = (nextDocument) => {
+            document.title = nextDocument.title;
+            ['meta[name="description"]', 'link[rel="canonical"]'].forEach((selector) => {
+                const current = document.head.querySelector(selector);
+                const next = nextDocument.head.querySelector(selector);
+                if (current && next) {
+                    Array.from(next.attributes).forEach((attribute) => current.setAttribute(attribute.name, attribute.value));
+                }
+            });
+        };
+
+        const restoreScroll = (url, scrollY = 0) => {
+            requestAnimationFrame(() => {
+                const targetId = decodeURIComponent(url.hash.replace(/^#/, ''));
+                const target = targetId ? document.getElementById(targetId) : null;
+                if (target) target.scrollIntoView({ block: 'start' });
+                else window.scrollTo({ top: scrollY, left: 0, behavior: 'auto' });
+            });
+        };
+
+        const trackPageView = () => {
+            if (window.goatcounter?.count) {
+                window.goatcounter.count({
+                    path: window.location.pathname + window.location.search,
+                    title: document.title
+                });
+            }
+        };
+
+        const navigate = async (destination, { historyMode = 'push', scrollY = 0 } = {}) => {
+            const url = new URL(destination, window.location.href);
+            if (!isSoftNavigableURL(url)) {
+                window.location.assign(url.href);
+                return;
+            }
+
+            const sequence = ++navigationSequence;
+            closeSearch();
+            closeMobileDrawer();
+            closeLanguageMenus();
+            document.body.classList.add('is-soft-navigating');
+            if (historyMode === 'push') {
+                history.replaceState({ ...(history.state || {}), softNavigation: true, scrollY: window.scrollY }, '', window.location.href);
+            }
+
+            try {
+                const nextDocument = await getPageDocument(url);
+                if (sequence !== navigationSequence) return;
+                const currentContainer = document.querySelector('.main-container');
+                const nextContainer = nextDocument.querySelector('.main-container');
+                const currentUtility = document.getElementById('site-utility-layer');
+                const nextUtility = nextDocument.getElementById('site-utility-layer');
+                if (!currentContainer || !nextContainer || !currentUtility || !nextUtility) throw new Error('Navigation shell missing');
+
+                const currentPhoto = currentContainer.querySelector('.left-profile-photo');
+                const nextPhoto = nextContainer.querySelector('.left-profile-photo');
+                if (currentPhoto && nextPhoto && currentPhoto.getAttribute('src') === nextPhoto.getAttribute('src')) {
+                    nextPhoto.replaceWith(currentPhoto);
+                }
+
+                syncHead(nextDocument);
+                document.documentElement.lang = nextDocument.documentElement.lang;
+                document.documentElement.dir = nextDocument.documentElement.dir;
+                document.body.className = nextDocument.body.className;
+                currentContainer.replaceWith(nextContainer);
+                currentUtility.replaceWith(nextUtility);
+                if (historyMode === 'push') history.pushState({ softNavigation: true, scrollY: 0 }, '', url.href);
+                initPageFeatures({ softNavigation: true });
+                restoreScroll(url, scrollY);
+                trackPageView();
+                window.dispatchEvent(new CustomEvent('linee:navigation', { detail: { url: url.href } }));
+            } catch (error) {
+                console.warn('Soft navigation failed; falling back to a full page load.', error);
+                window.location.assign(url.href);
+            } finally {
+                if (sequence === navigationSequence) document.body.classList.remove('is-soft-navigating');
+            }
+        };
+
+        const initNetwork = () => {
+            if (reducedMotion || !motionProfile.enableNetwork || document.querySelector('.bg-network-canvas')) return;
+            const canvas = document.createElement('canvas');
+            canvas.className = 'bg-network-canvas';
+            canvas.setAttribute('aria-hidden', 'true');
+            document.body.prepend(canvas);
+            const context = canvas.getContext('2d');
+            if (!context) return;
+
+            const dpr = () => Math.min(window.devicePixelRatio || 1, 2);
+            const pointer = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+            let width = 0;
+            let height = 0;
+            let points = [];
+            let frame = 0;
+
+            const createPoints = () => {
+                const baseCount = window.innerWidth > 1200 ? 72 : (window.innerWidth > 800 ? 54 : 38);
+                const count = Math.max(14, Math.round(baseCount * motionProfile.pointCountScale));
+                points = Array.from({ length: count }, () => ({
+                    x: Math.random() * width,
+                    y: Math.random() * height,
+                    vx: (Math.random() - 0.5) * 0.35,
+                    vy: (Math.random() - 0.5) * 0.35,
+                    depth: 0.3 + Math.random() * 0.8
+                }));
+            };
+
+            const resize = () => {
+                const nextWidth = window.innerWidth;
+                const nextHeight = window.innerHeight;
+                const shouldRebuild = !points.length || Math.abs(nextWidth - width) > 80 || Math.abs(nextHeight - height) > 80;
+                width = nextWidth;
+                height = nextHeight;
+                canvas.width = Math.floor(width * dpr());
+                canvas.height = Math.floor(height * dpr());
+                canvas.style.width = `${width}px`;
+                canvas.style.height = `${height}px`;
+                context.setTransform(dpr(), 0, 0, dpr(), 0, 0);
+                if (shouldRebuild) createPoints();
+            };
+
+            const color = (property, fallback) => getComputedStyle(document.documentElement).getPropertyValue(property).trim() || fallback;
+            const draw = () => {
+                context.clearRect(0, 0, width, height);
+                const offsetX = (pointer.x - width / 2) * motionProfile.offsetFactor;
+                const offsetY = (pointer.y - height / 2) * motionProfile.offsetFactor;
+                const lineRGB = color('--network-line-rgb', '15, 108, 255');
+                const pointRGB = color('--network-point-rgb', '0, 122, 255');
+
+                points.forEach((point) => {
+                    point.x += point.vx;
+                    point.y += point.vy;
+                    if (point.x < -20 || point.x > width + 20) point.vx *= -1;
+                    if (point.y < -20 || point.y > height + 20) point.vy *= -1;
+                });
+
+                for (let index = 0; index < points.length; index += 1) {
+                    const first = points[index];
+                    const x1 = first.x + offsetX * first.depth;
+                    const y1 = first.y + offsetY * first.depth;
+                    for (let nextIndex = index + 1; nextIndex < points.length; nextIndex += 1) {
+                        const second = points[nextIndex];
+                        const x2 = second.x + offsetX * second.depth;
+                        const y2 = second.y + offsetY * second.depth;
+                        const distance = Math.hypot(x1 - x2, y1 - y2);
+                        if (distance >= motionProfile.linkDistance) continue;
+                        const alpha = (1 - distance / motionProfile.linkDistance) * motionProfile.linkAlpha;
+                        context.strokeStyle = `rgba(${lineRGB}, ${alpha.toFixed(3)})`;
+                        context.lineWidth = motionProfile.lineWidth;
+                        context.beginPath();
+                        context.moveTo(x1, y1);
+                        context.lineTo(x2, y2);
+                        context.stroke();
+                    }
+                    context.fillStyle = `rgba(${pointRGB}, ${motionProfile.pointAlpha})`;
+                    context.beginPath();
+                    context.arc(x1, y1, motionProfile.pointRadius, 0, Math.PI * 2);
+                    context.fill();
+                }
+                frame = requestAnimationFrame(draw);
+            };
+
+            window.addEventListener('resize', resize, { passive: true });
+            window.addEventListener('pointermove', (event) => {
+                pointer.x = event.clientX;
+                pointer.y = event.clientY;
+            }, { passive: true });
+            window.addEventListener('pointerleave', () => {
+                pointer.x = width / 2;
+                pointer.y = height / 2;
+            }, { passive: true });
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden) cancelAnimationFrame(frame);
+                else {
+                    cancelAnimationFrame(frame);
+                    frame = requestAnimationFrame(draw);
+                }
+            });
+            resize();
+            frame = requestAnimationFrame(draw);
+        };
+
+        document.addEventListener('click', (event) => {
+            const target = event.target instanceof Element ? event.target : null;
+            if (!target) return;
+
+            const mobileTrigger = target.closest('.top-nav-mobile-trigger');
+            if (mobileTrigger) {
+                const drawer = document.getElementById('top-nav-drawer');
+                const open = !document.body.classList.contains('top-nav-drawer-open');
+                document.body.classList.toggle('top-nav-drawer-open', open);
+                mobileTrigger.setAttribute('aria-expanded', open ? 'true' : 'false');
+                if (drawer) drawer.setAttribute('aria-hidden', open ? 'false' : 'true');
+                return;
+            }
+            if (target.closest('[data-top-nav-close]')) {
+                closeMobileDrawer();
+                return;
+            }
+            if (target.closest('.top-nav-drawer-theme-toggle')) {
+                document.getElementById('dark-mode-toggle')?.click();
+                return;
+            }
+            const languageTrigger = target.closest('.language-switcher-trigger');
+            if (languageTrigger) {
+                event.stopPropagation();
+                const switcher = languageTrigger.closest('[data-language-switcher]');
+                setLanguageOpen(switcher, !switcher.classList.contains('is-open'));
+                return;
+            }
+            if (target.closest('[data-site-search-open]')) {
+                event.preventDefault();
+                openSearch();
+                return;
+            }
+            if (target.closest('[data-site-search-close]')) {
+                closeSearch();
+                return;
+            }
+            if (target.closest('[data-back-to-top]')) {
+                window.scrollTo({ top: 0, behavior: reducedMotion ? 'auto' : 'smooth' });
+                return;
+            }
+            const dialog = target.closest('.site-search-dialog');
+            if (dialog && target === dialog) {
+                closeSearch();
+                return;
+            }
+
+            const anchor = target.closest('a[href]');
+            if (!anchor || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+            if (anchor.hasAttribute('download') || (anchor.target && anchor.target !== '_self') || anchor.dataset.noSoftNav !== undefined) return;
+            const url = new URL(anchor.href, window.location.href);
+            if (!['http:', 'https:'].includes(url.protocol) || !isSoftNavigableURL(url)) return;
+            if (url.pathname === window.location.pathname && url.search === window.location.search && url.hash) {
+                const heading = document.getElementById(decodeURIComponent(url.hash.slice(1)));
+                if (heading) {
+                    event.preventDefault();
+                    history.pushState({ ...(history.state || {}), softNavigation: true, scrollY: heading.offsetTop }, '', url.href);
+                    heading.scrollIntoView({ behavior: reducedMotion ? 'auto' : 'smooth', block: 'start' });
+                }
+                return;
+            }
+            event.preventDefault();
+            navigate(url);
+        });
+
+        document.addEventListener('input', (event) => {
+            const input = event.target instanceof Element ? event.target.closest('[data-site-search-input]') : null;
+            if (input) renderSearch(input.closest('.site-search-dialog'));
+        });
+
+        document.addEventListener('pointerdown', (event) => {
+            document.querySelectorAll('[data-language-switcher].is-open').forEach((switcher) => {
+                if (!switcher.contains(event.target)) setLanguageOpen(switcher, false);
+            });
+        });
+
+        document.addEventListener('pointerover', (event) => {
+            const anchor = event.target instanceof Element ? event.target.closest('a[href]') : null;
+            if (!anchor || anchor.dataset.noSoftNav !== undefined) return;
+            const url = new URL(anchor.href, window.location.href);
+            if (isSoftNavigableURL(url)) getPageDocument(url).catch(() => {});
         }, { passive: true });
 
-        window.addEventListener('pointerleave', () => {
-            pointer.x = width / 2;
-            pointer.y = height / 2;
-        }, { passive: true });
-
-        document.addEventListener('visibilitychange', () => {
-            if (document.hidden) {
-                cancelAnimationFrame(rafId);
-            } else {
-                rafId = requestAnimationFrame(draw);
+        document.addEventListener('keydown', (event) => {
+            const dialog = document.getElementById('site-search-dialog');
+            const searchShortcut = (event.key.toLowerCase() === 'k' && (event.metaKey || event.ctrlKey)) ||
+                (event.key === '/' && !isEditableTarget(event.target));
+            if (searchShortcut) {
+                event.preventDefault();
+                openSearch();
+                return;
+            }
+            const languageMenu = event.target instanceof Element ? event.target.closest('.language-switcher-menu') : null;
+            if (languageMenu) {
+                const options = Array.from(languageMenu.querySelectorAll('.language-switcher-option'));
+                const currentIndex = options.indexOf(document.activeElement);
+                if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+                    event.preventDefault();
+                    const step = event.key === 'ArrowDown' ? 1 : -1;
+                    options[(currentIndex + step + options.length) % options.length]?.focus();
+                } else if (event.key === 'Home' || event.key === 'End') {
+                    event.preventDefault();
+                    options[event.key === 'Home' ? 0 : options.length - 1]?.focus();
+                }
+            }
+            const languageTrigger = event.target instanceof Element ? event.target.closest('.language-switcher-trigger') : null;
+            if (languageTrigger && event.key === 'ArrowDown') {
+                event.preventDefault();
+                setLanguageOpen(languageTrigger.closest('[data-language-switcher]'), true, true);
+                return;
+            }
+            if (dialog?.open) {
+                const state = getSearchState(dialog);
+                const rows = Array.from(dialog.querySelectorAll('.site-search-result'));
+                if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+                    event.preventDefault();
+                    setSearchSelection(dialog, state.selected + (event.key === 'ArrowDown' ? 1 : -1));
+                } else if (event.key === 'Enter' && rows[state.selected]) {
+                    event.preventDefault();
+                    rows[state.selected].querySelector('a')?.click();
+                }
+            }
+            if (event.key === 'Escape') {
+                closeMobileDrawer();
+                closeLanguageMenus();
             }
         });
 
-        resize();
-        rafId = requestAnimationFrame(draw);
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 1023) closeMobileDrawer();
+            if (window.innerWidth <= 1023) closeLanguageMenus();
+        }, { passive: true });
+        window.addEventListener('popstate', (event) => {
+            navigate(window.location.href, { historyMode: 'none', scrollY: event.state?.scrollY || 0 });
+        });
+
+        if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+        history.replaceState({ ...(history.state || {}), softNavigation: true, scrollY: window.scrollY }, '', window.location.href);
+        initPageFeatures();
+        initNetwork();
     })();
 </script>
+
+<script data-goatcounter="https://yanlinee.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>

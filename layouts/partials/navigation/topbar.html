@@ -21,6 +21,11 @@
 
         <!-- 右侧：语言切换 + 主题切换 -->
         <div class="top-nav-right">
+            <button class="top-nav-control site-search-trigger" type="button" data-site-search-open
+                aria-label='{{ if eq .Site.Language.Lang "zh-cn" }}搜索本站{{ else }}Search this site{{ end }}'
+                title='{{ if eq .Site.Language.Lang "zh-cn" }}搜索（Ctrl/⌘ + K）{{ else }}Search (Ctrl/⌘ + K){{ end }}'>
+                {{ partial "helper/icon" "search" }}
+            </button>
             {{- $currentLanguageCode := .Language.Lang -}}
             {{ if hugo.IsMultilingual }}
             <div class="language-switcher" data-language-switcher>

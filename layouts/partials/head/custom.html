@@ -1,0 +1,6 @@
+{{- $isPostPage := and .IsPage (eq .Section "post") -}}
+{{- if and .Site.Params.leftProfile.enabled (not $isPostPage) -}}
+    {{- with .Site.Params.leftProfile.photo -}}
+<link rel="preload" as="image" href="{{ . | relURL }}" fetchpriority="high">
+    {{- end -}}
+{{- end -}}

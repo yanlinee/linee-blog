@@ -1,0 +1,15 @@
+{{- $items := slice -}}
+{{- $searchableSections := slice "post" "projects" "reading" "page" -}}
+{{- range where .Site.RegularPages "Section" "in" $searchableSections -}}
+    {{- $summary := .Params.description | default .Summary | plainify | htmlUnescape | strings.TrimSpace -}}
+    {{- $tags := .Params.tags | default (slice) -}}
+    {{- $items = $items | append (dict
+        "title" .Title
+        "url" .RelPermalink
+        "section" .Section
+        "description" ($summary | truncate 220)
+        "tags" $tags
+        "date" (.Date.Format "2006-01-02")
+    ) -}}
+{{- end -}}
+{{- dict "language" .Site.Language.Lang "items" $items | jsonify -}}
